@@ -1,0 +1,3 @@
+[workspace]
+resolver = "2"
+members = ["lgbm", "lgbm-sys", "utils/lgbm-sys-generator"]

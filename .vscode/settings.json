@@ -1,0 +1,19 @@
+{
+    "files.exclude": {
+        "submodules/LightGBM": true,
+    },
+    "git.ignoredRepositories": [
+        "submodules/LightGBM"
+    ],
+    "rust-analyzer.server.extraEnv": {
+        "LIGHTGBM_LIB_DIR": "${workspaceFolder}/submodules/LightGBM/Release",
+    },
+    "terminal.integrated.env.windows": {
+        "LIGHTGBM_LIB_DIR": "${workspaceFolder}/submodules/LightGBM/Release",
+        "PATH": "${env:PATH};${workspaceFolder}/submodules/LightGBM/Release",
+    },
+    "terminal.integrated.env.linux": {
+        "LIGHTGBM_LIB_DIR": "${workspaceFolder}/submodules/LightGBM",
+        "LD_LIBRARY_PATH": "${env:LD_LIBRARY_PATH}:${workspaceFolder}/submodules/LightGBM",
+    }
+}

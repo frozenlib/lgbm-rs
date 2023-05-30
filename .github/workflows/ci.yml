@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  schedule: [cron: "20 5 * * *"]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        link: [static, dynamic]
+        exclude:
+          - os: macos-latest
+            link: static
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive      
+      - name: Make build dir
+        run : mkdir submodules/LightGBM/build
+
+      - name: Build lightgbm (windows - static)
+        if: matrix.os == 'windows-latest' && matrix.link == 'static'
+        run: |
+          echo "LIGHTGBM_LIB_DIR=${{ github.workspace }}/submodules/LightGBM/Release" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          cd submodules/LightGBM/build
+          cmake -A x64 -DBUILD_STATIC_LIB=ON ..
+          cmake --build . --target ALL_BUILD --config Release
+  
+      - name: Build lightgbm (windows - dynamic)
+        if: matrix.os == 'windows-latest' && matrix.link == 'dynamic'
+        run: |
+          echo "LIGHTGBM_LIB_DIR=${{ github.workspace }}/submodules/LightGBM/Release" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "${{ github.workspace }}/submodules/LightGBM/Release" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          cd submodules/LightGBM/build
+          cmake -A x64 ..
+          cmake --build . --target ALL_BUILD --config Release
+  
+      - name: Build lightgbm (ubuntu - static)
+        if: matrix.os == 'ubuntu-latest' && matrix.link == 'static'
+        run: |
+          echo "LIGHTGBM_LIB_DIR=${{ github.workspace }}/submodules/LightGBM" >> $GITHUB_ENV
+          cd submodules/LightGBM/build
+          cmake -DBUILD_STATIC_LIB=ON ..
+          make -j4  
+
+      - name: Build lightgbm (ubuntu - dynamic)
+        if: matrix.os == 'ubuntu-latest' && matrix.link == 'dynamic'
+        run: |
+          echo "LIGHTGBM_LIB_DIR=${{ github.workspace }}/submodules/LightGBM" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ github.workspace }}/submodules/LightGBM" >> $GITHUB_ENV
+          cd submodules/LightGBM/build
+          cmake ..
+          make -j4  
+
+      - name: Install lightgbm (macos - dynamic)
+        if: matrix.os == 'macos-latest' && matrix.link == 'dynamic'
+        run: |
+          brew install lightgbm
+  
+      - name: Rustup update stable
+        run: rustup update stable
+      - name: Show cargo version
+        run: cargo --version
+      - name: Build
+        run: cargo build --verbose
+      - name: Build tests
+        run: cargo test --verbose --no-run
+      - name: Run tests
+        run: cargo test --verbose
+      # - name: Run compile fail tests
+      #   run: cargo test --test compile_fail --verbose -- --ignored
+      - name: Clippy
+        run: cargo clippy --all-features --tests --lib -- -W clippy::all
+        env:
+          RUSTFLAGS: -D warnings
+      # - name: Rustup toolchain install nightly
+      #   run: rustup toolchain install nightly
+      # - name: Set minimal versions
+      #   run: cargo +nightly update -Z minimal-versions
+      # - name: Build tests (minimal versions)
+      #   run: cargo +stable test --verbose --no-run
+      # - name: Run tests (minimal versions)
+      #   run: cargo +stable test --verbose

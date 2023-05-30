@@ -1,0 +1,24 @@
+[package]
+name = "lgbm"
+version = "0.0.1"
+edition = "2021"
+authors = ["frozenlib"]
+license = "MIT"
+readme = "../README.md"
+repository = "https://github.com/frozenlib/lgbm-rs"
+documentation = "https://docs.rs/lgbm/"
+keywords = ["lightgbm", "machine-learning", "gradient-boosting"]
+categories = ["api-bindings"]
+description = "Unofficial Rust bindings for LightGBM"
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lgbm-sys = { version = "0.0.1", path = "../lgbm-sys" }
+derive-ex = "0.1.4"
+text-grid = "0.3.0"
+parse-display = "0.8.0"
+
+[dev-dependencies]
+anyhow = "1.0.71"
