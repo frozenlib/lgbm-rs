@@ -1,8 +1,11 @@
 use std::{env, path::Path};
 
 fn main() {
-    let os = std::env::consts::OS;
+    if std::env::var("DOCS_RS").is_ok() {
+        return;
+    }
 
+    let os = std::env::consts::OS;
     match os {
         "windows" => build_windows(),
         "linux" => build_linux(),
