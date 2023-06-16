@@ -1,7 +1,6 @@
 //! <https://lightgbm.readthedocs.io/en/latest/Parameters.html>
 
 use crate::{utils::to_cstring, Result};
-use derive_ex::derive_ex;
 use parse_display::{Display, FromStr};
 use std::ffi::CString;
 
@@ -293,6 +292,7 @@ impl From<Verbosity> for ParameterValue {
     }
 }
 
+/*
 /// <https://lightgbm.readthedocs.io/en/latest/Parameters.html#core-parameters>
 #[derive(Clone, Debug, PartialEq)]
 #[derive_ex(Default)]
@@ -371,3 +371,4 @@ pub struct LearningControlParameters {
     pub bagging_seed: i32,
     // todo
 }
+*/
