@@ -23,23 +23,27 @@ brew install lightgbm
 
 ## Example
 
-### Cargo.toml
+**Cargo.toml**
 
 ```toml
 [dependencies]
 lgbm = "0.0.1"
 ```
 
-### main.rs
+**main.rs**
 
 ```rust
-use lgbm::{parameters::Objective, Booster, Dataset, Field, Mat, Parameters, PredictType};
+use lgbm::{
+    parameters::{Objective, Verbosity},
+    Booster, Dataset, Field, Mat, Parameters, PredictType,
+};
 use std::sync::Arc;
 
 fn main() -> anyhow::Result<()> {
     let mut p = Parameters::new();
     p.push("num_class", 3);
     p.push("objective", Objective::Multiclass);
+    p.push("verbosity", Verbosity::Fatal);
 
     let mut train = Dataset::from_mat(&Mat::from_rows(train_features()), None, &p)?;
     train.set_field(Field::LABEL, &train_labels())?;
@@ -62,7 +66,7 @@ fn main() -> anyhow::Result<()> {
         None,
         &p,
     )?;
-    println!("\n{rs}");
+    println!("\n{rs:.5}");
     Ok(())
 }
 fn train_features() -> Vec<[f64; 1]> {
@@ -80,6 +84,21 @@ fn valid_labels() -> Vec<f32> {
 fn test_features() -> Vec<[f64; 1]> {
     (0..4).map(|x| [(x % 3) as f64]).collect()
 }
+```
+
+**output**
+
+```txt
+num_data  : 4
+num_class : 3
+num_2     : 1
+
+   |    0    |    1    |    2    |
+---|---------|---------|---------|
+ 0 | 0.99998 | 0.00001 | 0.00001 |
+ 1 | 0.00001 | 0.99998 | 0.00001 |
+ 2 | 0.00001 | 0.00001 | 0.99998 |
+ 3 | 0.99998 | 0.00001 | 0.00001 |
 ```
 
 ## Static linking or dynamic linking

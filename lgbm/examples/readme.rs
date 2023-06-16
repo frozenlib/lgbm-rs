@@ -1,10 +1,14 @@
-use lgbm::{parameters::Objective, Booster, Dataset, Field, Mat, Parameters, PredictType};
+use lgbm::{
+    parameters::{Objective, Verbosity},
+    Booster, Dataset, Field, Mat, Parameters, PredictType,
+};
 use std::sync::Arc;
 
 fn main() -> anyhow::Result<()> {
     let mut p = Parameters::new();
     p.push("num_class", 3);
     p.push("objective", Objective::Multiclass);
+    p.push("verbosity", Verbosity::Fatal);
 
     let mut train = Dataset::from_mat(&Mat::from_rows(train_features()), None, &p)?;
     train.set_field(Field::LABEL, &train_labels())?;
@@ -27,7 +31,7 @@ fn main() -> anyhow::Result<()> {
         None,
         &p,
     )?;
-    println!("\n{rs}");
+    println!("\n{rs:.5}");
     Ok(())
 }
 fn train_features() -> Vec<[f64; 1]> {

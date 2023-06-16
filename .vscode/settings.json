@@ -15,5 +15,6 @@
     "terminal.integrated.env.linux": {
         "LIGHTGBM_LIB_DIR": "${workspaceFolder}/submodules/LightGBM",
         "LD_LIBRARY_PATH": "${env:LD_LIBRARY_PATH}:${workspaceFolder}/submodules/LightGBM",
-    }
+    },
+    "markdown.extension.tableFormatter.enabled": false,
 }
