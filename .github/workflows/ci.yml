@@ -23,7 +23,7 @@ jobs:
       - name: Make build dir
         run : mkdir submodules/LightGBM/build
 
-      - name: Build lightgbm (windows - static)
+      - name: Build LightGBM (windows - static)
         if: matrix.os == 'windows-latest' && matrix.link == 'static'
         run: |
           echo "LIGHTGBM_LIB_DIR=${{ github.workspace }}/submodules/LightGBM/Release" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
@@ -31,7 +31,7 @@ jobs:
           cmake -A x64 -DBUILD_STATIC_LIB=ON ..
           cmake --build . --target ALL_BUILD --config Release
   
-      - name: Build lightgbm (windows - dynamic)
+      - name: Build LightGBM (windows - dynamic)
         if: matrix.os == 'windows-latest' && matrix.link == 'dynamic'
         run: |
           echo "LIGHTGBM_LIB_DIR=${{ github.workspace }}/submodules/LightGBM/Release" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
@@ -40,7 +40,7 @@ jobs:
           cmake -A x64 ..
           cmake --build . --target ALL_BUILD --config Release
   
-      - name: Build lightgbm (ubuntu - static)
+      - name: Build LightGBM (ubuntu - static)
         if: matrix.os == 'ubuntu-latest' && matrix.link == 'static'
         run: |
           echo "LIGHTGBM_LIB_DIR=${{ github.workspace }}/submodules/LightGBM" >> $GITHUB_ENV
@@ -48,7 +48,7 @@ jobs:
           cmake -DBUILD_STATIC_LIB=ON ..
           make -j4  
 
-      - name: Build lightgbm (ubuntu - dynamic)
+      - name: Build LightGBM (ubuntu - dynamic)
         if: matrix.os == 'ubuntu-latest' && matrix.link == 'dynamic'
         run: |
           echo "LIGHTGBM_LIB_DIR=${{ github.workspace }}/submodules/LightGBM" >> $GITHUB_ENV
@@ -57,7 +57,7 @@ jobs:
           cmake ..
           make -j4  
 
-      - name: Install lightgbm (macos - dynamic)
+      - name: Install LightGBM (macos - dynamic)
         if: matrix.os == 'macos-latest' && matrix.link == 'dynamic'
         run: |
           brew install lightgbm
