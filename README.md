@@ -12,9 +12,6 @@ Unofficial Rust bindings for [LightGBM](https://lightgbm.readthedocs.io/en/lates
 
 1. Install LightGBM and build according to [LightGBM Documentation](https://lightgbm.readthedocs.io/en/latest/Installation-Guide.html).
 2. Set the environment variable `LIGHTGBM_LIB_PATH` to the directory containing the build output (`.dll` and `.lib` on Windows, `.so` on Linux).
-3. Add the directory specified in `LIGHTGBM_LIB_PATH` to dynamic link library search path. (`PATH` (for windows) or `LD_LIBRARY_PATH` (for Linux) environment variable.)
-
-See the `Build LightGBM` job in [the Github Actions configuration](https://github.com/frozenlib/lgbm-rs/blob/master/.github/workflows/ci.yml) for the command to use.
 
 ### MacOS
 
