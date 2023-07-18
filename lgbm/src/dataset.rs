@@ -195,6 +195,8 @@ impl Drop for Dataset {
         }
     }
 }
+unsafe impl Send for Dataset {}
+unsafe impl Sync for Dataset {}
 
 fn to_dataset_handle(dataset: Option<&Dataset>) -> DatasetHandle {
     if let Some(dataset) = dataset {

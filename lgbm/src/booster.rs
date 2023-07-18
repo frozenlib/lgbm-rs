@@ -446,6 +446,8 @@ impl Drop for Booster {
         }
     }
 }
+unsafe impl Send for Booster {}
+unsafe impl Sync for Booster {}
 
 #[derive(Clone)]
 pub struct Prediction {
