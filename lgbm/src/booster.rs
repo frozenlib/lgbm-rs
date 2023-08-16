@@ -16,6 +16,7 @@ use lgbm_sys::{
     C_API_MATRIX_TYPE_CSR, C_API_PREDICT_CONTRIB, C_API_PREDICT_LEAF_INDEX, C_API_PREDICT_NORMAL,
     C_API_PREDICT_RAW_SCORE,
 };
+use serde::{Deserialize, Serialize};
 use std::{
     ffi::{CStr, CString},
     os::raw::c_int,
@@ -449,20 +450,16 @@ impl Drop for Booster {
 unsafe impl Send for Booster {}
 unsafe impl Sync for Booster {}
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Prediction {
-    num_data: usize,
-    num_class: usize,
-    num_2: usize,
+    num: [usize; 3],
     values: Vec<f64>,
 }
 impl Prediction {
     fn new(num_data: usize, num_class: usize, num_2: usize) -> Self {
         Self {
             values: vec![f64::NAN; num_data * num_class * num_2],
-            num_data,
-            num_class,
-            num_2,
+            num: [num_data, num_class, num_2],
         }
     }
     fn from_num_predict(num_predict: usize, num_data: usize, num_class: usize) -> Result<Self> {
@@ -480,16 +477,16 @@ impl Prediction {
         &self.values
     }
     pub fn num_data(&self) -> usize {
-        self.num_data
+        self.num[0]
     }
     pub fn num_class(&self) -> usize {
-        self.num_class
+        self.num[1]
     }
     pub fn num_iteration(&self) -> usize {
-        self.num_2
+        self.num[2]
     }
     pub fn num_feature(&self) -> usize {
-        self.num_2 - 1
+        self.num[2] - 1
     }
 
     fn fmt_with<T: CellsSource>(
@@ -497,9 +494,9 @@ impl Prediction {
         f: &mut std::fmt::Formatter<'_>,
         to_cells: impl Fn(f64) -> T,
     ) -> std::fmt::Result {
-        writeln!(f, "num_data  : {}", self.num_data)?;
-        writeln!(f, "num_class : {}", self.num_class)?;
-        writeln!(f, "num_2     : {}", self.num_2)?;
+        writeln!(f, "num_data  : {}", self.num_data())?;
+        writeln!(f, "num_class : {}", self.num_class())?;
+        writeln!(f, "num_2     : {}", self.num[2])?;
         self.fmt_values_with(f, to_cells)
     }
     fn fmt_values_with<T: CellsSource>(
@@ -508,16 +505,16 @@ impl Prediction {
         to_cells: impl Fn(f64) -> T,
     ) -> std::fmt::Result {
         writeln!(f)?;
-        match (self.num_class, self.num_2) {
+        match (self.num_class(), self.num[2]) {
             (_, 1) => {
                 let schema = grid_schema(|f| {
                     f.column("", |&&row| row);
-                    for column in 0..self.num_class {
+                    for column in 0..self.num_class() {
                         f.column(column, |&&row| to_cells(self[[row, column]]));
                     }
                 });
                 let mut g = Grid::new_with_schema(schema);
-                g.extend(0..self.num_data);
+                g.extend(0..self.num_data());
                 writeln!(f, "{g}")?;
             }
             (_, _) => {
@@ -585,9 +582,7 @@ impl std::fmt::Debug for Prediction {
             }
         }
         f.debug_struct("Prediction")
-            .field("num_data", &self.num_data)
-            .field("num_class", &self.num_class)
-            .field("num_2", &self.num_2)
+            .field("num", &self.num)
             .field("values", &Values(self))
             .finish()
     }
@@ -596,21 +591,21 @@ impl std::fmt::Debug for Prediction {
 impl std::ops::Index<usize> for Prediction {
     type Output = f64;
     fn index(&self, data: usize) -> &f64 {
-        assert_eq!(self.num_class, 1, "num_class");
-        assert_eq!(self.num_2, 1, "num_2");
+        assert_eq!(self.num_class(), 1, "num_class");
+        assert_eq!(self.num[2], 1, "num_2");
         &self.values[data]
     }
 }
 impl std::ops::Index<[usize; 2]> for Prediction {
     type Output = f64;
     fn index(&self, [data, class]: [usize; 2]) -> &f64 {
-        assert_eq!(self.num_2, 1, "num_2");
-        &self.values[data * self.num_class + class]
+        assert_eq!(self.num[2], 1, "num_2");
+        &self.values[data * self.num_class() + class]
     }
 }
 impl std::ops::Index<[usize; 3]> for Prediction {
     type Output = f64;
     fn index(&self, [data, class, iteration]: [usize; 3]) -> &f64 {
-        &self.values[data * self.num_class * self.num_2 + class * self.num_2 + iteration]
+        &self.values[data * self.num_class() * self.num[2] + class * self.num[2] + iteration]
     }
 }
