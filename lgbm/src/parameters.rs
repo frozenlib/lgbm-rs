@@ -2,9 +2,10 @@
 
 use crate::{utils::to_cstring, Result};
 use parse_display::{Display, FromStr};
+use serde::{Deserialize, Serialize};
 use std::ffi::CString;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum ParameterValue {
     None,
     Bool(bool),
@@ -87,7 +88,7 @@ impl<T: Into<ParameterValue>, const N: usize> From<[T; N]> for ParameterValue {
 }
 
 /// <https://lightgbm.readthedocs.io/en/latest/Parameters.html>
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Parameters(pub Vec<(String, ParameterValue)>);
 
 impl Parameters {
