@@ -11,7 +11,7 @@ pub(crate) mod utils;
 pub use booster::*;
 pub use dataset::*;
 pub use error::*;
-pub use mat::MatBuf;
+pub use mat::{Mat, MatBuf};
 pub use parameters::Parameters;
 
 #[cfg(doctest)]
