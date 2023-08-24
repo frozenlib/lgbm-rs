@@ -1,7 +1,7 @@
 use crate::{
     mat::RowMajor,
     parameters::{Boosting, Metric, Objective, Verbosity},
-    Booster, Dataset, FeatureImportanceType, Field, Mat, Parameters, PredictType,
+    Booster, Dataset, FeatureImportanceType, Field, MatBuf, Parameters, PredictType,
 };
 use anyhow::Result;
 use std::sync::Arc;
@@ -9,7 +9,7 @@ use std::sync::Arc;
 #[test]
 fn booster_new() -> Result<()> {
     let train_data = Dataset::from_mat(
-        &Mat::from_rows([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        &MatBuf::from_rows([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
         &Parameters::new(),
     )?;
@@ -311,8 +311,8 @@ fn save_to_string() -> Result<()> {
     Ok(())
 }
 
-fn make_features(num_row: usize, num_class: usize) -> Mat<f64, RowMajor> {
-    Mat::from_rows((0..num_row).map(|x| [(x % num_class) as f64 + 1.0, x as f64]))
+fn make_features(num_row: usize, num_class: usize) -> MatBuf<f64, RowMajor> {
+    MatBuf::from_rows((0..num_row).map(|x| [(x % num_class) as f64 + 1.0, x as f64]))
 }
 fn make_labels(num_row: usize, num_class: usize) -> Vec<f32> {
     (0..num_row).map(|x| (x % num_class) as f32).collect()

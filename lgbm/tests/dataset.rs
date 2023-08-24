@@ -1,5 +1,5 @@
 use anyhow::Result;
-use lgbm::{Dataset, Field, Mat, Parameters};
+use lgbm::{Dataset, Field, MatBuf, Parameters};
 use std::env;
 
 #[test]
@@ -16,7 +16,7 @@ fn from_csv() -> Result<()> {
 #[test]
 fn from_mat_f32() {
     let d = Dataset::from_mat(
-        &Mat::from_rows([[1.0f32, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        &MatBuf::from_rows([[1.0f32, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
         &Parameters::new(),
     )
@@ -29,7 +29,7 @@ fn from_mat_f32() {
 #[test]
 fn from_mat_f64() {
     let d = Dataset::from_mat(
-        &Mat::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
         &Parameters::new(),
     )
@@ -42,7 +42,7 @@ fn from_mat_f64() {
 #[test]
 fn set_label() -> Result<()> {
     let mut d = Dataset::from_mat(
-        &Mat::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
         &Parameters::new(),
     )?;

@@ -1,5 +1,5 @@
 use crate::{
-    mat::AsMatView,
+    mat::AsMat,
     to_result,
     utils::{get_cstring, get_strings, int_to_bool, path_to_cstring},
     Dataset, Error, FeatureData, Parameters, Result,
@@ -344,13 +344,13 @@ impl Booster {
     #[doc(alias = "LGBM_BoosterPredictForMat")]
     pub fn predict_for_mat<T: FeatureData>(
         &self,
-        mat: &impl AsMatView<T>,
+        mat: &impl AsMat<T>,
         predict_type: PredictType,
         start_iteration: usize,
         num_iteration: Option<usize>,
         parameters: &Parameters,
     ) -> Result<Prediction> {
-        let mat = mat.as_mat_view();
+        let mat = mat.as_mat();
         let num_feature = self.get_num_feature()?;
         if num_feature != mat.ncol() {
             return Err(Error::from_message(&format!(

@@ -35,7 +35,7 @@ lgbm = "0.0.1"
 ```rust
 use lgbm::{
     parameters::{Objective, Verbosity},
-    Booster, Dataset, Field, Mat, Parameters, PredictType,
+    Booster, Dataset, Field, MatBuf, Parameters, PredictType,
 };
 use std::sync::Arc;
 
@@ -45,10 +45,10 @@ fn main() -> anyhow::Result<()> {
     p.push("objective", Objective::Multiclass);
     p.push("verbosity", Verbosity::Fatal);
 
-    let mut train = Dataset::from_mat(&Mat::from_rows(train_features()), None, &p)?;
+    let mut train = Dataset::from_mat(&MatBuf::from_rows(train_features()), None, &p)?;
     train.set_field(Field::LABEL, &train_labels())?;
 
-    let mut valid = Dataset::from_mat(&Mat::from_rows(valid_features()), Some(&train), &p)?;
+    let mut valid = Dataset::from_mat(&MatBuf::from_rows(valid_features()), Some(&train), &p)?;
     valid.set_field(Field::LABEL, &valid_labels())?;
 
     let mut b = Booster::new(Arc::new(train), &p)?;
@@ -60,7 +60,7 @@ fn main() -> anyhow::Result<()> {
     }
     let p = Parameters::new();
     let rs = b.predict_for_mat(
-        &Mat::from_rows(test_features()),
+        &MatBuf::from_rows(test_features()),
         PredictType::Normal,
         0,
         None,

@@ -1,4 +1,4 @@
-use crate::{mat::AsMatView, to_result, utils::path_to_cstring, Error, Parameters, Result};
+use crate::{mat::AsMat, to_result, utils::path_to_cstring, Error, Parameters, Result};
 use lgbm_sys::{
     DatasetHandle, LGBM_DatasetCreateFromFile, LGBM_DatasetCreateFromMat, LGBM_DatasetDumpText,
     LGBM_DatasetFree, LGBM_DatasetGetField, LGBM_DatasetGetNumData, LGBM_DatasetGetNumFeature,
@@ -102,11 +102,11 @@ impl Dataset {
     /// [LGBM_DatasetCreateFromMat](https://lightgbm.readthedocs.io/en/latest/C-API.html#c.LGBM_DatasetCreateFromMat)
     #[doc(alias = "LGBM_DatasetCreateFromMat")]
     pub fn from_mat<T: FeatureData>(
-        mat: &impl AsMatView<T>,
+        mat: &impl AsMat<T>,
         reference: Option<&Dataset>,
         parameters: &Parameters,
     ) -> Result<Self> {
-        let mat = mat.as_mat_view();
+        let mat = mat.as_mat();
         let mut handle = null_mut();
         unsafe {
             to_result(LGBM_DatasetCreateFromMat(
