@@ -1,8 +1,8 @@
 use crate::{
-    mat::MatLayout,
+    mat::AsMatView,
     to_result,
     utils::{get_cstring, get_strings, int_to_bool, path_to_cstring},
-    Dataset, Error, FeatureData, Mat, Parameters, Result,
+    Dataset, Error, FeatureData, Parameters, Result,
 };
 use lgbm_sys::{
     BoosterHandle, LGBM_BoosterAddValidData, LGBM_BoosterCalcNumPredict, LGBM_BoosterCreate,
@@ -342,14 +342,15 @@ impl Booster {
 
     /// [LGBM_BoosterPredictForMat](https://lightgbm.readthedocs.io/en/latest/C-API.html#c.LGBM_BoosterPredictForMat)
     #[doc(alias = "LGBM_BoosterPredictForMat")]
-    pub fn predict_for_mat<T: FeatureData, L: MatLayout>(
+    pub fn predict_for_mat<T: FeatureData>(
         &self,
-        mat: &Mat<T, L>,
+        mat: &impl AsMatView<T>,
         predict_type: PredictType,
         start_iteration: usize,
         num_iteration: Option<usize>,
         parameters: &Parameters,
     ) -> Result<Prediction> {
+        let mat = mat.as_mat_view();
         let num_feature = self.get_num_feature()?;
         if num_feature != mat.ncol() {
             return Err(Error::from_message(&format!(

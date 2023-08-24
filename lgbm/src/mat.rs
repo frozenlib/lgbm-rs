@@ -1,7 +1,8 @@
 use crate::{utils::bool_to_int, Error, Result};
+use derive_ex::derive_ex;
 use std::{
     fmt::Debug,
-    ops::{Index, IndexMut},
+    ops::{Bound, Index, IndexMut, Range, RangeBounds},
     os::raw::c_int,
 };
 use text_grid::{cell, grid_schema, Grid};
@@ -146,6 +147,9 @@ impl<T> Mat<T, ColMajor> {
     pub fn col_mut(&mut self, col: usize) -> &mut [T] {
         &mut self.values[col * self.nrow..][..self.ncol]
     }
+    pub fn cols(&self, range: impl RangeBounds<usize>) -> MatView<T, ColMajor> {
+        self.as_mat_view().cols(range)
+    }
 }
 impl<T> Mat<T, RowMajor> {
     pub fn row(&self, row: usize) -> &[T] {
@@ -153,6 +157,9 @@ impl<T> Mat<T, RowMajor> {
     }
     pub fn row_mut(&mut self, row: usize) -> &mut [T] {
         &mut self.values[row * self.ncol..][..self.ncol]
+    }
+    pub fn rows(&self, range: impl RangeBounds<usize>) -> MatView<T, RowMajor> {
+        self.as_mat_view().rows(range)
     }
 }
 
@@ -188,9 +195,6 @@ impl<T, L: MatLayout> Mat<T, L> {
     pub fn layout(&self) -> MatLayouts {
         self.layout.layout()
     }
-    pub(crate) fn is_row_major(&self) -> c_int {
-        bool_to_int(self.layout() == MatLayouts::RowMajor)
-    }
 }
 impl<T, L: MatLayout> Index<[usize; 2]> for Mat<T, L> {
     type Output = T;
@@ -205,7 +209,109 @@ impl<T, L: MatLayout> IndexMut<[usize; 2]> for Mat<T, L> {
 }
 
 impl<T: Debug> Debug for Mat<T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        self.as_mat_view().fmt(f)
+    }
+}
+impl<T, L: MatLayout> AsMatView<T> for Mat<T, L> {
+    type Layout = L;
+    fn as_mat_view(&self) -> MatView<T, L> {
+        MatView {
+            values: &self.values,
+            nrow: self.nrow,
+            ncol: self.ncol,
+            layout: self.layout,
+        }
+    }
+}
+
+#[derive_ex(Clone, Copy)]
+pub struct MatView<'a, T, L: MatLayout> {
+    values: &'a [T],
+    nrow: usize,
+    ncol: usize,
+    layout: L,
+}
+impl<'a, T, L: MatLayout> MatView<'a, T, L> {
+    pub fn from_slice(values: &'a [T], nrow: usize, ncol: usize, layout: L) -> Self {
+        if values.len() != nrow * ncol {
+            panic!(
+                "mismatch length : ({nrow} * {ncol} = {}, values.len() = {})",
+                nrow * ncol,
+                values.len()
+            );
+        }
+        Self {
+            values,
+            nrow,
+            ncol,
+            layout,
+        }
+    }
+
+    pub fn nrow(&self) -> usize {
+        self.nrow
+    }
+    pub fn ncol(&self) -> usize {
+        self.ncol
+    }
+    pub fn layout(&self) -> MatLayouts {
+        self.layout.layout()
+    }
+    pub fn as_slice(&self) -> &[T] {
+        self.values
+    }
+    pub fn as_ptr(&self) -> *const T {
+        self.values.as_ptr()
+    }
+    pub(crate) fn is_row_major(&self) -> c_int {
+        bool_to_int(self.layout() == MatLayouts::RowMajor)
+    }
+}
+impl<'a, T> MatView<'a, T, ColMajor> {
+    pub fn col(&self, col: usize) -> &'a [T] {
+        &self.values[col * self.nrow..][..self.ncol]
+    }
+    pub fn cols(&self, range: impl RangeBounds<usize>) -> Self {
+        let range = to_range(range, self.ncol);
+        let ncol = range.end - range.start;
+        Self {
+            values: &self.values[range.start * self.nrow..][..ncol * self.nrow],
+            ncol,
+            ..*self
+        }
+    }
+}
+impl<'a, T> MatView<'a, T, RowMajor> {
+    pub fn row(&self, row: usize) -> &'a [T] {
+        &self.values[row * self.ncol..][..self.ncol]
+    }
+    pub fn rows(&self, range: impl RangeBounds<usize>) -> Self {
+        let range = to_range(range, self.nrow);
+        let nrow = range.end - range.start;
+        Self {
+            values: &self.values[range.start * self.ncol..][..nrow * self.ncol],
+            nrow,
+            ..*self
+        }
+    }
+}
+
+impl<T, L: MatLayout> AsMatView<T> for MatView<'_, T, L> {
+    type Layout = L;
+    fn as_mat_view(&self) -> MatView<T, L> {
+        *self
+    }
+}
+impl<T, L: MatLayout> Index<[usize; 2]> for MatView<'_, T, L> {
+    type Output = T;
+    fn index(&self, [row, col]: [usize; 2]) -> &Self::Output {
+        &self.values[self.layout.to_index(row, col, self.nrow, self.ncol)]
+    }
+}
+
+impl<T: Debug, L: MatLayout> Debug for MatView<'_, T, L> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let s = grid_schema::<usize>(|f| {
             for col in 0..self.ncol {
                 f.column(col, |&&row| cell!("{:?}", &self[[row, col]]))
@@ -213,6 +319,25 @@ impl<T: Debug> Debug for Mat<T> {
         });
         let mut g = Grid::new_with_schema(s);
         g.extend(0..self.nrow);
-        write!(f, "g")
+        write!(f, "{g}")
     }
+}
+
+pub trait AsMatView<T> {
+    type Layout: MatLayout;
+    fn as_mat_view(&self) -> MatView<T, Self::Layout>;
+}
+
+fn to_range(value: impl RangeBounds<usize>, len: usize) -> Range<usize> {
+    let start = match value.start_bound() {
+        Bound::Included(&start) => start,
+        Bound::Excluded(&start) => start + 1,
+        Bound::Unbounded => 0,
+    };
+    let end = match value.end_bound() {
+        Bound::Included(&end) => end + 1,
+        Bound::Excluded(&end) => end,
+        Bound::Unbounded => len,
+    };
+    start..end
 }
