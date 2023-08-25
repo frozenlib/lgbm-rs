@@ -116,7 +116,7 @@ impl Booster {
         let mut out_num_iterations = 0;
         unsafe {
             to_result(LGBM_BoosterLoadModelFromString(
-                model.as_ptr() as *const i8,
+                model.as_ptr(),
                 &mut out_num_iterations,
                 &mut handle,
             ))?;
