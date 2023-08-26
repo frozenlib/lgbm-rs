@@ -74,6 +74,7 @@ impl<T, L: MatLayout> MatBuf<T, L> {
             layout: Default::default(),
         }
     }
+    #[track_caller]
     pub fn from_vec(values: Vec<T>, nrow: usize, ncol: usize, layout: L) -> Self {
         if values.len() != nrow * ncol {
             panic!(
@@ -141,23 +142,32 @@ impl<T> MatBuf<T, RowMajor> {
     }
 }
 impl<T> MatBuf<T, ColMajor> {
+    #[track_caller]
     pub fn col(&self, col: usize) -> &[T] {
-        &self.values[col * self.nrow..][..self.ncol]
+        assert_col(col, self.ncol);
+        &self.values[col * self.nrow..][..self.nrow]
     }
+    #[track_caller]
     pub fn col_mut(&mut self, col: usize) -> &mut [T] {
-        &mut self.values[col * self.nrow..][..self.ncol]
+        assert_col(col, self.ncol);
+        &mut self.values[col * self.nrow..][..self.nrow]
     }
     pub fn cols(&self, range: impl RangeBounds<usize>) -> Mat<T, ColMajor> {
         self.as_mat().cols(range)
     }
 }
 impl<T> MatBuf<T, RowMajor> {
+    #[track_caller]
     pub fn row(&self, row: usize) -> &[T] {
+        assert_row(row, self.nrow);
         &self.values[row * self.ncol..][..self.ncol]
     }
+    #[track_caller]
     pub fn row_mut(&mut self, row: usize) -> &mut [T] {
+        assert_row(row, self.nrow);
         &mut self.values[row * self.ncol..][..self.ncol]
     }
+    #[track_caller]
     pub fn rows(&self, range: impl RangeBounds<usize>) -> Mat<T, RowMajor> {
         self.as_mat().rows(range)
     }
@@ -198,12 +208,18 @@ impl<T, L: MatLayout> MatBuf<T, L> {
 }
 impl<T, L: MatLayout> Index<[usize; 2]> for MatBuf<T, L> {
     type Output = T;
+    #[track_caller]
     fn index(&self, [row, col]: [usize; 2]) -> &Self::Output {
+        assert_row(row, self.nrow);
+        assert_col(col, self.ncol);
         &self.values[self.layout.to_index(row, col, self.nrow, self.ncol)]
     }
 }
 impl<T, L: MatLayout> IndexMut<[usize; 2]> for MatBuf<T, L> {
+    #[track_caller]
     fn index_mut(&mut self, [row, col]: [usize; 2]) -> &mut Self::Output {
+        assert_row(row, self.nrow);
+        assert_col(col, self.ncol);
         &mut self.values[self.layout.to_index(row, col, self.nrow, self.ncol)]
     }
 }
@@ -233,6 +249,7 @@ pub struct Mat<'a, T, L: MatLayout> {
     layout: L,
 }
 impl<'a, T, L: MatLayout> Mat<'a, T, L> {
+    #[track_caller]
     pub fn from_slice(values: &'a [T], nrow: usize, ncol: usize, layout: L) -> Self {
         if values.len() != nrow * ncol {
             panic!(
@@ -269,14 +286,16 @@ impl<'a, T, L: MatLayout> Mat<'a, T, L> {
     }
 }
 impl<'a, T> Mat<'a, T, ColMajor> {
+    #[track_caller]
     pub fn col(&self, col: usize) -> &'a [T] {
-        assert!(col < self.ncol);
+        assert_col(col, self.ncol);
         &self.values[col * self.nrow..][..self.ncol]
     }
+
+    #[track_caller]
     pub fn cols(&self, range: impl RangeBounds<usize>) -> Self {
         let range = to_range(range, self.ncol);
-        assert!(range.start <= range.end);
-        assert!(range.end <= self.ncol);
+        assert_range(&range, self.ncol);
         let ncol = range.end - range.start;
         Self {
             values: &self.values[range.start * self.nrow..][..ncol * self.nrow],
@@ -286,14 +305,16 @@ impl<'a, T> Mat<'a, T, ColMajor> {
     }
 }
 impl<'a, T> Mat<'a, T, RowMajor> {
+    #[track_caller]
     pub fn row(&self, row: usize) -> &'a [T] {
-        assert!(row < self.nrow);
+        assert_row(row, self.nrow);
         &self.values[row * self.ncol..][..self.ncol]
     }
+
+    #[track_caller]
     pub fn rows(&self, range: impl RangeBounds<usize>) -> Self {
         let range = to_range(range, self.nrow);
-        assert!(range.start <= range.end);
-        assert!(range.end <= self.nrow);
+        assert_range(&range, self.nrow);
         let nrow = range.end - range.start;
         Self {
             values: &self.values[range.start * self.ncol..][..nrow * self.ncol],
@@ -311,7 +332,10 @@ impl<T, L: MatLayout> AsMat<T> for Mat<'_, T, L> {
 }
 impl<T, L: MatLayout> Index<[usize; 2]> for Mat<'_, T, L> {
     type Output = T;
+    #[track_caller]
     fn index(&self, [row, col]: [usize; 2]) -> &Self::Output {
+        assert_row(row, self.nrow);
+        assert_col(col, self.ncol);
         &self.values[self.layout.to_index(row, col, self.nrow, self.ncol)]
     }
 }
@@ -346,4 +370,37 @@ fn to_range(value: impl RangeBounds<usize>, len: usize) -> Range<usize> {
         Bound::Unbounded => len,
     };
     start..end
+}
+
+#[track_caller]
+fn assert_row(row: usize, nrow: usize) {
+    assert_index("row", row, "nrow", nrow);
+}
+
+#[track_caller]
+fn assert_col(col: usize, ncol: usize) {
+    assert_index("col", col, "ncol", ncol);
+}
+
+#[track_caller]
+fn assert_index(index_name: &str, index: usize, len_name: &str, len: usize) {
+    assert!(
+        index < len,
+        "index out of bounds: the {len_name} is {len} but the {index_name} is {index}",
+    );
+}
+
+#[track_caller]
+fn assert_range(range: &Range<usize>, len: usize) {
+    assert!(
+        range.start <= range.end,
+        "range start must be less than or equal to end"
+    );
+    assert!(
+        range.end <= len,
+        "index out of bounds: the len is {} but the range is {}..{}",
+        len,
+        range.start,
+        range.end,
+    );
 }
