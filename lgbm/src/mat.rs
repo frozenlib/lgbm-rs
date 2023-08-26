@@ -151,12 +151,6 @@ impl<T> MatBuf<T, ColMajor> {
     pub fn cols(&self, range: impl RangeBounds<usize>) -> Mat<T, ColMajor> {
         self.as_mat().cols(range)
     }
-    pub fn skip_cols(&self, ncol: usize) -> Mat<T, ColMajor> {
-        self.as_mat().skip_cols(ncol)
-    }
-    pub fn take_cols(&self, ncol: usize) -> Mat<T, ColMajor> {
-        self.as_mat().take_cols(ncol)
-    }
 }
 impl<T> MatBuf<T, RowMajor> {
     pub fn row(&self, row: usize) -> &[T] {
@@ -167,12 +161,6 @@ impl<T> MatBuf<T, RowMajor> {
     }
     pub fn rows(&self, range: impl RangeBounds<usize>) -> Mat<T, RowMajor> {
         self.as_mat().rows(range)
-    }
-    pub fn skip_rows(&self, nrow: usize) -> Mat<T, RowMajor> {
-        self.as_mat().skip_rows(nrow)
-    }
-    pub fn take_rows(&self, nrow: usize) -> Mat<T, RowMajor> {
-        self.as_mat().take_rows(nrow)
     }
 }
 
@@ -294,22 +282,6 @@ impl<'a, T> Mat<'a, T, ColMajor> {
             ..*self
         }
     }
-    pub fn skip_cols(&self, ncol: usize) -> Self {
-        let ncol = min(ncol, self.ncol);
-        Self {
-            values: &self.values[ncol * self.nrow..],
-            ncol: self.ncol - ncol,
-            ..*self
-        }
-    }
-    pub fn take_cols(&self, ncol: usize) -> Self {
-        let ncol = min(ncol, self.ncol);
-        Self {
-            values: &self.values[..ncol * self.nrow],
-            ncol,
-            ..*self
-        }
-    }
 }
 impl<'a, T> Mat<'a, T, RowMajor> {
     pub fn row(&self, row: usize) -> &'a [T] {
@@ -320,22 +292,6 @@ impl<'a, T> Mat<'a, T, RowMajor> {
         let nrow = range.end - range.start;
         Self {
             values: &self.values[range.start * self.ncol..][..nrow * self.ncol],
-            nrow,
-            ..*self
-        }
-    }
-    pub fn skip_rows(&self, nrow: usize) -> Self {
-        let nrow = min(nrow, self.nrow);
-        Self {
-            values: &self.values[nrow * self.ncol..],
-            nrow: self.nrow - nrow,
-            ..*self
-        }
-    }
-    pub fn take_rows(&self, nrow: usize) -> Self {
-        let nrow = min(nrow, self.nrow);
-        Self {
-            values: &self.values[..nrow * self.ncol],
             nrow,
             ..*self
         }
