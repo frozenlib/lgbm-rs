@@ -1,7 +1,6 @@
 use crate::{utils::bool_to_int, Error, Result};
 use derive_ex::derive_ex;
 use std::{
-    cmp::min,
     fmt::Debug,
     ops::{Bound, Index, IndexMut, Range, RangeBounds},
     os::raw::c_int,
@@ -271,10 +270,13 @@ impl<'a, T, L: MatLayout> Mat<'a, T, L> {
 }
 impl<'a, T> Mat<'a, T, ColMajor> {
     pub fn col(&self, col: usize) -> &'a [T] {
+        assert!(col < self.ncol);
         &self.values[col * self.nrow..][..self.ncol]
     }
     pub fn cols(&self, range: impl RangeBounds<usize>) -> Self {
         let range = to_range(range, self.ncol);
+        assert!(range.start <= range.end);
+        assert!(range.end <= self.ncol);
         let ncol = range.end - range.start;
         Self {
             values: &self.values[range.start * self.nrow..][..ncol * self.nrow],
@@ -285,10 +287,13 @@ impl<'a, T> Mat<'a, T, ColMajor> {
 }
 impl<'a, T> Mat<'a, T, RowMajor> {
     pub fn row(&self, row: usize) -> &'a [T] {
+        assert!(row < self.nrow);
         &self.values[row * self.ncol..][..self.ncol]
     }
     pub fn rows(&self, range: impl RangeBounds<usize>) -> Self {
         let range = to_range(range, self.nrow);
+        assert!(range.start <= range.end);
+        assert!(range.end <= self.nrow);
         let nrow = range.end - range.start;
         Self {
             values: &self.values[range.start * self.ncol..][..nrow * self.ncol],
