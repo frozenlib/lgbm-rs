@@ -610,3 +610,9 @@ impl std::ops::Index<[usize; 3]> for Prediction {
         &self.values[data * self.num_class() * self.num[2] + class * self.num[2] + iteration]
     }
 }
+
+impl From<Prediction> for Vec<f64> {
+    fn from(p: Prediction) -> Self {
+        p.values
+    }
+}
