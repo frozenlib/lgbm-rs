@@ -196,17 +196,20 @@ impl Dataset {
 
     /// [LGBM_DatasetSetFeatureNames](https://lightgbm.readthedocs.io/en/latest/C-API.html#c.LGBM_DatasetSetFeatureNames)
     #[doc(alias = "LGBM_DatasetSetFeatureNames")]
-    pub fn set_feature_names(&mut self, names: &[&str]) -> Result<()> {
+    pub fn set_feature_names<T: AsRef<str>>(
+        &mut self,
+        names: impl IntoIterator<Item = T>,
+    ) -> Result<()> {
         let mut cstr_names = Vec::new();
         for name in names {
-            cstr_names.push(to_cstring(name)?);
+            cstr_names.push(to_cstring(name.as_ref())?);
         }
         let mut pcstr_names = cstr_names.iter().map(|x| x.as_ptr()).collect::<Vec<_>>();
         unsafe {
             to_result(LGBM_DatasetSetFeatureNames(
                 self.0,
                 pcstr_names.as_mut_ptr(),
-                names.len().try_into()?,
+                pcstr_names.len().try_into()?,
             ))
         }
     }

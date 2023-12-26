@@ -65,3 +65,18 @@ fn get_feature_names() -> Result<()> {
     assert_eq!(names0, names1);
     Ok(())
 }
+
+#[test]
+fn set_feature_names_string() -> Result<()> {
+    let mut d = Dataset::from_mat(
+        &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        None,
+        &Parameters::new(),
+    )?;
+
+    let names0 = vec!["aaa".to_string(), "bb".to_string(), "c".to_string()];
+    d.set_feature_names(&names0)?;
+    let names1 = d.get_feature_names()?;
+    assert_eq!(names0, names1);
+    Ok(())
+}
