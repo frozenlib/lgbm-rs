@@ -1,9 +1,14 @@
-use crate::{mat::AsMat, to_result, utils::path_to_cstring, Error, Parameters, Result};
+use crate::{
+    mat::AsMat,
+    to_result,
+    utils::{get_strings, path_to_cstring, to_cstring},
+    Error, Parameters, Result,
+};
 use lgbm_sys::{
     DatasetHandle, LGBM_DatasetCreateFromFile, LGBM_DatasetCreateFromMat, LGBM_DatasetDumpText,
-    LGBM_DatasetFree, LGBM_DatasetGetField, LGBM_DatasetGetNumData, LGBM_DatasetGetNumFeature,
-    LGBM_DatasetSetField, C_API_DTYPE_FLOAT32, C_API_DTYPE_FLOAT64, C_API_DTYPE_INT32,
-    C_API_DTYPE_INT64,
+    LGBM_DatasetFree, LGBM_DatasetGetFeatureNames, LGBM_DatasetGetField, LGBM_DatasetGetNumData,
+    LGBM_DatasetGetNumFeature, LGBM_DatasetSetFeatureNames, LGBM_DatasetSetField,
+    C_API_DTYPE_FLOAT32, C_API_DTYPE_FLOAT64, C_API_DTYPE_INT32, C_API_DTYPE_INT64,
 };
 use std::{
     marker::PhantomData,
@@ -187,6 +192,40 @@ impl Dataset {
                 path_to_cstring(path)?.as_ptr(),
             ))
         }
+    }
+
+    /// [LGBM_DatasetSetFeatureNames](https://lightgbm.readthedocs.io/en/latest/C-API.html#c.LGBM_DatasetSetFeatureNames)
+    #[doc(alias = "LGBM_DatasetSetFeatureNames")]
+    pub fn set_feature_names(&mut self, names: &[&str]) -> Result<()> {
+        let mut cstr_names = Vec::new();
+        for name in names {
+            cstr_names.push(to_cstring(name)?);
+        }
+        let mut pcstr_names = cstr_names.iter().map(|x| x.as_ptr()).collect::<Vec<_>>();
+        unsafe {
+            to_result(LGBM_DatasetSetFeatureNames(
+                self.0,
+                pcstr_names.as_mut_ptr(),
+                names.len().try_into()?,
+            ))
+        }
+    }
+
+    /// [LGBM_DatasetGetFeatureNames](https://lightgbm.readthedocs.io/en/latest/C-API.html#c.LGBM_DatasetGetFeatureNames)
+    #[doc(alias = "LGBM_DatasetGetFeatureNames")]
+    pub fn get_feature_names(&self) -> Result<Vec<String>> {
+        get_strings(
+            |len, out_len, buffer_len, out_buffer_len, out_strs| unsafe {
+                LGBM_DatasetGetFeatureNames(
+                    self.0,
+                    len,
+                    out_len,
+                    buffer_len,
+                    out_buffer_len,
+                    out_strs,
+                )
+            },
+        )
     }
 }
 impl Drop for Dataset {

@@ -50,3 +50,18 @@ fn set_label() -> Result<()> {
     d.set_field(Field::LABEL, &[0.0, 1.0])?;
     Ok(())
 }
+
+#[test]
+fn get_feature_names() -> Result<()> {
+    let mut d = Dataset::from_mat(
+        &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        None,
+        &Parameters::new(),
+    )?;
+
+    let names0 = vec!["aaa", "bb", "c"];
+    d.set_feature_names(&names0)?;
+    let names1 = d.get_feature_names()?;
+    assert_eq!(names0, names1);
+    Ok(())
+}
