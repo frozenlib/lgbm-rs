@@ -166,7 +166,6 @@ fn update_one_iter_custom() -> Result<()> {
         grad.clear();
         hess.clear();
         let p = b.get_predict(0)?;
-        dbg!(&p);
         for i in 0..train_label.len() {
             let p = (p[i] as f32).max(0.0001).min(0.9999);
             let g = p as f32 - train_label[i];
