@@ -277,6 +277,32 @@ fn get_current_iteration() -> Result<()> {
     assert_eq!(iteration, 10);
     Ok(())
 }
+
+#[test]
+fn rollback_one_iter() -> Result<()> {
+    let num_row = [128, 64];
+    let num_class = 2;
+    let mut p = Parameters::new();
+    p.push("objective", Objective::Binary);
+    p.push("verbosity", Verbosity::Fatal);
+
+    let train_data = make_dataset(num_row[0], num_class, None, &p)?;
+    let valid_data = make_dataset(num_row[1], num_class, Some(&train_data), &p)?;
+    let mut b = Booster::new(train_data, &p)?;
+    b.add_valid_data(valid_data)?;
+    for _ in 0..10 {
+        if b.update_one_iter()? {
+            break;
+        }
+    }
+    assert_eq!(b.get_current_iteration()?, 10);
+    b.rollback_one_iter()?;
+    assert_eq!(b.get_current_iteration()?, 9);
+    b.rollback_one_iter()?;
+    assert_eq!(b.get_current_iteration()?, 8);
+    Ok(())
+}
+
 #[test]
 fn save_to_string() -> Result<()> {
     let num_row = [128, 64];

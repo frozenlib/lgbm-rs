@@ -11,10 +11,11 @@ use lgbm_sys::{
     LGBM_BoosterGetEvalCounts, LGBM_BoosterGetEvalNames, LGBM_BoosterGetFeatureNames,
     LGBM_BoosterGetNumClasses, LGBM_BoosterGetNumFeature, LGBM_BoosterGetNumPredict,
     LGBM_BoosterGetPredict, LGBM_BoosterLoadModelFromString, LGBM_BoosterNumModelPerIteration,
-    LGBM_BoosterNumberOfTotalModel, LGBM_BoosterPredictForMat, LGBM_BoosterSaveModel,
-    LGBM_BoosterSaveModelToString, LGBM_BoosterUpdateOneIter, C_API_FEATURE_IMPORTANCE_GAIN,
-    C_API_FEATURE_IMPORTANCE_SPLIT, C_API_MATRIX_TYPE_CSC, C_API_MATRIX_TYPE_CSR,
-    C_API_PREDICT_CONTRIB, C_API_PREDICT_LEAF_INDEX, C_API_PREDICT_NORMAL, C_API_PREDICT_RAW_SCORE,
+    LGBM_BoosterNumberOfTotalModel, LGBM_BoosterPredictForMat, LGBM_BoosterRollbackOneIter,
+    LGBM_BoosterSaveModel, LGBM_BoosterSaveModelToString, LGBM_BoosterUpdateOneIter,
+    C_API_FEATURE_IMPORTANCE_GAIN, C_API_FEATURE_IMPORTANCE_SPLIT, C_API_MATRIX_TYPE_CSC,
+    C_API_MATRIX_TYPE_CSR, C_API_PREDICT_CONTRIB, C_API_PREDICT_LEAF_INDEX, C_API_PREDICT_NORMAL,
+    C_API_PREDICT_RAW_SCORE,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -412,6 +413,12 @@ impl Booster {
             to_result(LGBM_BoosterUpdateOneIter(self.handle, &mut is_finished))?;
         }
         Ok(int_to_bool(is_finished))
+    }
+
+    /// [LGBM_BoosterRollbackOneIter](https://lightgbm.readthedocs.io/en/latest/C-API.html#c.LGBM_BoosterRollbackOneIter)
+    #[doc(alias = "LGBM_BoosterRollbackOneIter")]
+    pub fn rollback_one_iter(&mut self) -> Result<()> {
+        unsafe { to_result(LGBM_BoosterRollbackOneIter(self.handle)) }
     }
 
     /// [LGBM_BoosterSaveModel](https://lightgbm.readthedocs.io/en/latest/C-API.html#c.LGBM_BoosterSaveModel)
