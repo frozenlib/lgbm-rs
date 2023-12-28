@@ -139,6 +139,7 @@ pub enum Objective {
     CrossEntropyLambda,
     Lambdarank,
     RankXendcg,
+    Custom,
 }
 impl From<Objective> for ParameterValue {
     fn from(value: Objective) -> Self {

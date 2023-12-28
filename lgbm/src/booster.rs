@@ -13,9 +13,9 @@ use lgbm_sys::{
     LGBM_BoosterGetPredict, LGBM_BoosterLoadModelFromString, LGBM_BoosterNumModelPerIteration,
     LGBM_BoosterNumberOfTotalModel, LGBM_BoosterPredictForMat, LGBM_BoosterRollbackOneIter,
     LGBM_BoosterSaveModel, LGBM_BoosterSaveModelToString, LGBM_BoosterUpdateOneIter,
-    C_API_FEATURE_IMPORTANCE_GAIN, C_API_FEATURE_IMPORTANCE_SPLIT, C_API_MATRIX_TYPE_CSC,
-    C_API_MATRIX_TYPE_CSR, C_API_PREDICT_CONTRIB, C_API_PREDICT_LEAF_INDEX, C_API_PREDICT_NORMAL,
-    C_API_PREDICT_RAW_SCORE,
+    LGBM_BoosterUpdateOneIterCustom, C_API_FEATURE_IMPORTANCE_GAIN, C_API_FEATURE_IMPORTANCE_SPLIT,
+    C_API_MATRIX_TYPE_CSC, C_API_MATRIX_TYPE_CSR, C_API_PREDICT_CONTRIB, C_API_PREDICT_LEAF_INDEX,
+    C_API_PREDICT_NORMAL, C_API_PREDICT_RAW_SCORE,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -411,6 +411,25 @@ impl Booster {
         let mut is_finished = 0;
         unsafe {
             to_result(LGBM_BoosterUpdateOneIter(self.handle, &mut is_finished))?;
+        }
+        Ok(int_to_bool(is_finished))
+    }
+
+    /// [LGBM_BoosterUpdateOneIterCustom](https://lightgbm.readthedocs.io/en/latest/C-API.html#c.LGBM_BoosterUpdateOneIterCustom)
+    #[doc(alias = "LGBM_BoosterUpdateOneIterCustom")]
+    pub fn update_one_iter_custom(&mut self, grad: &[f32], hess: &[f32]) -> Result<bool> {
+        let num_class = self.get_num_classes()?;
+        let num_data = self.get_num_data(0)?;
+        assert_eq!(grad.len(), num_class * num_data, "mismatch grad length.");
+        assert_eq!(hess.len(), num_class * num_data, "mismatch hess length.");
+        let mut is_finished = 0;
+        unsafe {
+            to_result(LGBM_BoosterUpdateOneIterCustom(
+                self.handle,
+                grad.as_ptr(),
+                hess.as_ptr(),
+                &mut is_finished,
+            ))?;
         }
         Ok(int_to_bool(is_finished))
     }

@@ -134,6 +134,75 @@ fn multiclass_classification() -> Result<()> {
 }
 
 #[test]
+fn update_one_iter_custom() -> Result<()> {
+    let num_class = 2;
+
+    let mut p = Parameters::new();
+    p.push("boosting_type", Boosting::Gbdt);
+    p.push("objective", Objective::Custom);
+    p.push("min_data_in_leaf", 20);
+    p.push("verbosity", Verbosity::Fatal);
+
+    println!("make train dataset");
+    let train_feature = make_features(128, num_class);
+    let train_label = make_labels(128, num_class);
+    let mut train = Dataset::from_mat(&train_feature, None, &p)?;
+    train.set_field(Field::LABEL, &train_label)?;
+
+    println!("make test dataset");
+    let test_feature = make_features(4, num_class);
+    let test_label = make_labels(4, num_class);
+    let mut test = Dataset::from_mat(&test_feature, Some(&train), &p)?;
+    test.set_field(Field::LABEL, &test_label)?;
+
+    println!("crate booster");
+    let mut b = Booster::new(Arc::new(train), &p)?;
+    b.add_valid_data(Arc::new(test))?;
+
+    let mut grad = Vec::new();
+    let mut hess = Vec::new();
+    for n in 0..100 {
+        println!("iter {n}");
+        grad.clear();
+        hess.clear();
+        let p = b.get_predict(0)?;
+        dbg!(&p);
+        for i in 0..train_label.len() {
+            let p = (p[i] as f32).max(0.0001).min(0.9999);
+            let g = p as f32 - train_label[i];
+            grad.push(g);
+            hess.push(p * (1.0 - p));
+        }
+        let is_finish = b.update_one_iter_custom(&grad, &hess)?;
+        let eval_names = b.get_eval_names()?;
+        let evals = b.get_eval(0)?;
+        for i in 0..eval_names.len() {
+            println!("training {}: {}", eval_names[i], evals[i]);
+        }
+        let evals = b.get_eval(1)?;
+        for i in 0..eval_names.len() {
+            println!("valid    {}: {}", eval_names[i], evals[i]);
+        }
+        if is_finish {
+            break;
+        }
+    }
+
+    let p = Parameters::new();
+    let rs = b.predict_for_mat(&test_feature, PredictType::Normal, 0, None, &p)?;
+    println!("\n{rs}");
+    for i in 0..test_label.len() {
+        let r = rs[i];
+        if test_label[i] == 0.0 {
+            assert!(r < 0.1);
+        } else {
+            assert!(r > 0.9);
+        }
+    }
+    Ok(())
+}
+
+#[test]
 fn calc_num_predict_binary() -> Result<()> {
     let mut p = Parameters::new();
     p.push("objective", Objective::Binary);
