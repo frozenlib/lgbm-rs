@@ -84,6 +84,7 @@ fn binary_classification_categorical() -> Result<()> {
     p.push("metric", [Metric::BinaryLogloss, Metric::Auc]);
     p.push("min_data_in_leaf", 20);
     p.push("verbosity", Verbosity::Fatal);
+    p.push("categorical_feature", [0]);
 
     println!("make train dataset");
     let train_feature = make_features_categorycal(128, num_category);
