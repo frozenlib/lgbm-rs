@@ -1,11 +1,11 @@
 use anyhow::Result;
-use lgbm::{Dataset, Field, MatBuf, Parameters};
+use lgbm::{parameters::Verbosity, Dataset, Field, MatBuf, Parameters};
 use std::env;
 
 #[test]
 fn from_csv() -> Result<()> {
     let csv_path = env::current_dir()?.join("tests/data/data.csv");
-    let mut p = Parameters::new();
+    let mut p = parameters();
     p.push("header", true);
     let d = Dataset::from_file(&csv_path, None, &p)?;
     assert_eq!(d.get_num_feature()?, 3);
@@ -18,7 +18,7 @@ fn from_mat_f32() -> Result<()> {
     let d = Dataset::from_mat(
         &MatBuf::from_rows([[1.0f32, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
-        &Parameters::new(),
+        &parameters(),
     )?;
 
     assert_eq!(d.get_num_feature()?, 3);
@@ -31,7 +31,7 @@ fn from_mat_f64() -> Result<()> {
     let d = Dataset::from_mat(
         &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
-        &Parameters::new(),
+        &parameters(),
     )?;
 
     assert_eq!(d.get_num_feature()?, 3);
@@ -47,7 +47,7 @@ fn from_mats() -> Result<()> {
             MatBuf::from_rows([[1.0f64, 2.0, 3.0], [1.0f64, 2.0, 3.0], [1.0f64, 2.0, 3.0]]),
         ],
         None,
-        &Parameters::new(),
+        &parameters(),
     )?;
     assert_eq!(d.get_num_feature()?, 3);
     assert_eq!(d.get_num_data()?, 5);
@@ -59,7 +59,7 @@ fn set_label() -> Result<()> {
     let mut d = Dataset::from_mat(
         &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
-        &Parameters::new(),
+        &parameters(),
     )?;
 
     d.set_field(Field::LABEL, &[0.0, 1.0])?;
@@ -71,7 +71,7 @@ fn get_feature_names() -> Result<()> {
     let mut d = Dataset::from_mat(
         &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
-        &Parameters::new(),
+        &parameters(),
     )?;
 
     let names0 = vec!["aaa", "bb", "c"];
@@ -86,7 +86,7 @@ fn set_feature_names_string() -> Result<()> {
     let mut d = Dataset::from_mat(
         &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
-        &Parameters::new(),
+        &parameters(),
     )?;
 
     let names0 = vec!["aaa".to_string(), "bb".to_string(), "c".to_string()];
@@ -94,4 +94,10 @@ fn set_feature_names_string() -> Result<()> {
     let names1 = d.get_feature_names()?;
     assert_eq!(names0, names1);
     Ok(())
+}
+
+fn parameters() -> Parameters {
+    let mut p = Parameters::new();
+    p.push("verbosity", Verbosity::Fatal);
+    p
 }

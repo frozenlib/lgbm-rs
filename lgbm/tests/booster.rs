@@ -11,9 +11,9 @@ fn booster_new() -> Result<()> {
     let train_data = Dataset::from_mat(
         &MatBuf::from_rows([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
-        &Parameters::new(),
+        &parameters(),
     )?;
-    let _b = Booster::new(Arc::new(train_data), &Parameters::new())?;
+    let _b = Booster::new(Arc::new(train_data), &parameters())?;
     Ok(())
 }
 
@@ -21,12 +21,11 @@ fn booster_new() -> Result<()> {
 fn binary_classification() -> Result<()> {
     let num_class = 2;
 
-    let mut p = Parameters::new();
+    let mut p = parameters();
     p.push("boosting_type", Boosting::Gbdt);
     p.push("objective", Objective::Binary);
     p.push("metric", [Metric::BinaryLogloss, Metric::Auc]);
     p.push("min_data_in_leaf", 20);
-    p.push("verbosity", Verbosity::Fatal);
 
     println!("make train dataset");
     let train_feature = make_features(128, num_class);
@@ -500,4 +499,10 @@ fn make_dataset(
     let mut d = Dataset::from_mat(&make_features(num_row, num_class), reference, p)?;
     d.set_field(Field::LABEL, &make_labels(num_row, num_class))?;
     Ok(Arc::new(d))
+}
+
+fn parameters() -> Parameters {
+    let mut p = Parameters::new();
+    p.push("verbosity", Verbosity::Fatal);
+    p
 }
