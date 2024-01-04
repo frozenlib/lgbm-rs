@@ -14,29 +14,29 @@ fn from_csv() -> Result<()> {
 }
 
 #[test]
-fn from_mat_f32() {
+fn from_mat_f32() -> Result<()> {
     let d = Dataset::from_mat(
         &MatBuf::from_rows([[1.0f32, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
         &Parameters::new(),
-    )
-    .unwrap();
+    )?;
 
-    assert_eq!(d.get_num_feature().unwrap(), 3);
-    assert_eq!(d.get_num_data().unwrap(), 2);
+    assert_eq!(d.get_num_feature()?, 3);
+    assert_eq!(d.get_num_data()?, 2);
+    Ok(())
 }
 
 #[test]
-fn from_mat_f64() {
+fn from_mat_f64() -> Result<()> {
     let d = Dataset::from_mat(
         &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
         &Parameters::new(),
-    )
-    .unwrap();
+    )?;
 
-    assert_eq!(d.get_num_feature().unwrap(), 3);
-    assert_eq!(d.get_num_data().unwrap(), 2);
+    assert_eq!(d.get_num_feature()?, 3);
+    assert_eq!(d.get_num_data()?, 2);
+    Ok(())
 }
 
 #[test]
