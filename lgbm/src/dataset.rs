@@ -5,8 +5,9 @@ use crate::{
     Error, Parameters, Result,
 };
 use lgbm_sys::{
-    DatasetHandle, LGBM_DatasetCreateFromFile, LGBM_DatasetCreateFromMat, LGBM_DatasetDumpText,
-    LGBM_DatasetFree, LGBM_DatasetGetFeatureNames, LGBM_DatasetGetField, LGBM_DatasetGetNumData,
+    DatasetHandle, LGBM_DatasetCreateFromFile, LGBM_DatasetCreateFromMat,
+    LGBM_DatasetCreateFromMats, LGBM_DatasetDumpText, LGBM_DatasetFree,
+    LGBM_DatasetGetFeatureNames, LGBM_DatasetGetField, LGBM_DatasetGetNumData,
     LGBM_DatasetGetNumFeature, LGBM_DatasetSetFeatureNames, LGBM_DatasetSetField,
     C_API_DTYPE_FLOAT32, C_API_DTYPE_FLOAT64, C_API_DTYPE_INT32, C_API_DTYPE_INT64,
 };
@@ -115,11 +116,55 @@ impl Dataset {
         let mut handle = null_mut();
         unsafe {
             to_result(LGBM_DatasetCreateFromMat(
-                T::as_data_ptr(mat.as_ptr()),
+                mat.as_data_ptr(),
                 T::DATA_TYPE,
                 mat.nrow().try_into()?,
                 mat.ncol().try_into()?,
                 mat.is_row_major(),
+                parameters.to_cstring()?.as_ptr(),
+                to_dataset_handle(reference),
+                &mut handle,
+            ))?;
+        }
+        Ok(Self(handle))
+    }
+    /// [LGBM_DatasetCreateFromMats](https://lightgbm.readthedocs.io/en/latest/C-API.html#c.LGBM_DatasetCreateFromMats)
+    #[doc(alias = "LGBM_DatasetCreateFromMats")]
+    pub fn from_mats<M: AsMat<T>, T: FeatureData>(
+        mats: impl IntoIterator<Item = M>,
+        reference: Option<&Dataset>,
+        parameters: &Parameters,
+    ) -> Result<Self> {
+        let as_mats = mats.into_iter().collect::<Vec<_>>();
+        let mats = as_mats.iter().map(|x| x.as_mat()).collect::<Vec<_>>();
+        if mats.is_empty() {
+            return Err(Error::from_message("mats must not be empty"));
+        }
+        let ncol = mats[0].ncol();
+        let is_row_major = mats[0].is_row_major();
+        let mut nrows: Vec<i32> = Vec::with_capacity(mats.len());
+        let mut mat_ptrs = Vec::with_capacity(mats.len());
+        for mat in &mats {
+            if mat.ncol() != ncol {
+                return Err(Error::from_message(
+                    "mats must have the same number of columns",
+                ));
+            }
+            if mat.is_row_major() != is_row_major {
+                return Err(Error::from_message("mats must have the same layout"));
+            }
+            nrows.push(mat.nrow().try_into()?);
+            mat_ptrs.push(mat.as_data_ptr());
+        }
+        let mut handle = null_mut();
+        unsafe {
+            to_result(LGBM_DatasetCreateFromMats(
+                mats.len().try_into()?,
+                mat_ptrs.as_mut_ptr(),
+                T::DATA_TYPE,
+                nrows.as_mut_ptr(),
+                ncol.try_into()?,
+                is_row_major,
                 parameters.to_cstring()?.as_ptr(),
                 to_dataset_handle(reference),
                 &mut handle,

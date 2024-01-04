@@ -1,6 +1,7 @@
-use crate::{utils::bool_to_int, Error, Result};
+use crate::{utils::bool_to_int, Data, Error, Result};
 use derive_ex::derive_ex;
 use std::{
+    ffi::c_void,
     fmt::Debug,
     ops::{Bound, Index, IndexMut, Range, RangeBounds},
     os::raw::c_int,
@@ -281,6 +282,13 @@ impl<'a, T, L: MatLayout> Mat<'a, T, L> {
     pub fn as_ptr(&self) -> *const T {
         self.values.as_ptr()
     }
+    pub(crate) fn as_data_ptr(&self) -> *const c_void
+    where
+        T: Data,
+    {
+        T::as_data_ptr(self.as_ptr())
+    }
+
     pub(crate) fn is_row_major(&self) -> c_int {
         bool_to_int(self.layout() == MatLayouts::RowMajor)
     }

@@ -40,6 +40,21 @@ fn from_mat_f64() {
 }
 
 #[test]
+fn from_mats() -> Result<()> {
+    let d = Dataset::from_mats(
+        [
+            MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+            MatBuf::from_rows([[1.0f64, 2.0, 3.0], [1.0f64, 2.0, 3.0], [1.0f64, 2.0, 3.0]]),
+        ],
+        None,
+        &Parameters::new(),
+    )?;
+    assert_eq!(d.get_num_feature()?, 3);
+    assert_eq!(d.get_num_data()?, 5);
+    Ok(())
+}
+
+#[test]
 fn set_label() -> Result<()> {
     let mut d = Dataset::from_mat(
         &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
