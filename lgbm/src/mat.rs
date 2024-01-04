@@ -249,6 +249,12 @@ pub struct Mat<'a, T, L: MatLayout> {
     ncol: usize,
     layout: L,
 }
+impl<'a, T> Mat<'a, T, RowMajor> {
+    pub fn from_row(row: &'a [T]) -> Self {
+        Self::from_slice(row, 1, row.len(), RowMajor)
+    }
+}
+
 impl<'a, T, L: MatLayout> Mat<'a, T, L> {
     #[track_caller]
     pub fn from_slice(values: &'a [T], nrow: usize, ncol: usize, layout: L) -> Self {
