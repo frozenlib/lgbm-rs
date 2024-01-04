@@ -1,9 +1,9 @@
-use crate::{
+use anyhow::Result;
+use lgbm::{
     mat::RowMajor,
     parameters::{Boosting, Metric, Objective, Verbosity},
     Booster, Dataset, FeatureImportanceType, Field, MatBuf, Parameters, PredictType,
 };
-use anyhow::Result;
 use std::sync::Arc;
 
 #[test]

@@ -27,9 +27,6 @@ use std::{
 };
 use text_grid::{cells_e, grid_schema, CellsSource, Grid};
 
-#[cfg(test)]
-mod tests;
-
 #[repr(u32)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PredictType {
@@ -139,7 +136,7 @@ impl Booster {
 
     /// [LGBM_BoosterCalcNumPredict](https://lightgbm.readthedocs.io/en/latest/C-API.html#c.LGBM_BoosterCalcNumPredict)
     #[doc(alias = "LGBM_BoosterCalcNumPredict")]
-    fn calc_num_predict(
+    pub fn calc_num_predict(
         &self,
         num_row: usize,
         predict_type: PredictType,
@@ -301,7 +298,7 @@ impl Booster {
 
     /// [LGBM_BoosterGetNumPredict](https://lightgbm.readthedocs.io/en/latest/C-API.html#c.LGBM_BoosterGetNumPredict)
     #[doc(alias = "LGBM_BoosterGetNumPredict")]
-    fn get_num_predict(&self, data_idx: usize) -> Result<usize> {
+    pub fn get_num_predict(&self, data_idx: usize) -> Result<usize> {
         let mut out_len = 0;
         unsafe {
             to_result(LGBM_BoosterGetNumPredict(
