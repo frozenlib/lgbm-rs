@@ -243,5 +243,16 @@
         "$rustc"
       ],
     },
+    {
+      "type": "shell",
+      "label": "lightgbm build dynamic gpu",
+      "windows": {
+        "command": "mkdir build; cd build; cmake -A x64 -DUSE_GPU=1 -DBOOST_ROOT=${env:BOOST_ROOT} -DBOOST_LIBRARYDIR=${env:BOOST_ROOT}/stage/lib ..;cmake --build . --target ALL_BUILD --config Release",
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/submodules/LightGBM"
+      },
+      "problemMatcher": [],
+    },
   ],
 }
