@@ -17,11 +17,11 @@ jobs:
             link: static
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          submodules: recursive      
+          submodules: recursive
       - name: Make build dir
-        run : mkdir submodules/LightGBM/build
+        run: mkdir submodules/LightGBM/build
 
       - name: Build LightGBM (windows - static)
         if: matrix.os == 'windows-latest' && matrix.link == 'static'
@@ -30,7 +30,7 @@ jobs:
           cd submodules/LightGBM/build
           cmake -A x64 -DBUILD_STATIC_LIB=ON ..
           cmake --build . --target ALL_BUILD --config Release
-  
+
       - name: Build LightGBM (windows - dynamic)
         if: matrix.os == 'windows-latest' && matrix.link == 'dynamic'
         run: |
@@ -39,14 +39,14 @@ jobs:
           cd submodules/LightGBM/build
           cmake -A x64 ..
           cmake --build . --target ALL_BUILD --config Release
-  
+
       - name: Build LightGBM (ubuntu - static)
         if: matrix.os == 'ubuntu-latest' && matrix.link == 'static'
         run: |
           echo "LIGHTGBM_LIB_DIR=${{ github.workspace }}/submodules/LightGBM" >> $GITHUB_ENV
           cd submodules/LightGBM/build
           cmake -DBUILD_STATIC_LIB=ON ..
-          make -j4  
+          make -j4
 
       - name: Build LightGBM (ubuntu - dynamic)
         if: matrix.os == 'ubuntu-latest' && matrix.link == 'dynamic'
@@ -55,13 +55,13 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ github.workspace }}/submodules/LightGBM" >> $GITHUB_ENV
           cd submodules/LightGBM/build
           cmake ..
-          make -j4  
+          make -j4
 
       - name: Install LightGBM (macos - dynamic)
         if: matrix.os == 'macos-latest' && matrix.link == 'dynamic'
         run: |
           brew install lightgbm
-  
+
       - name: Rustup update stable
         run: rustup update stable
       - name: Show cargo version
