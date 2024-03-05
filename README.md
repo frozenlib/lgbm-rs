@@ -27,7 +27,7 @@ brew install lightgbm
 
 ```toml
 [dependencies]
-lgbm = "0.0.1"
+lgbm = "0.0.2"
 ```
 
 **main.rs**
