@@ -6,7 +6,7 @@ use std::{
     ops::{Bound, Index, IndexMut, Range, RangeBounds},
     os::raw::c_int,
 };
-use text_grid::{cell, grid_schema, Grid};
+use text_grid::{cell, cells_schema, to_grid_with_schema};
 
 pub trait MatLayout: Copy + Clone + Send + Sync + Debug {
     fn layout(&self) -> MatLayouts;
@@ -356,14 +356,12 @@ impl<T, L: MatLayout> Index<[usize; 2]> for Mat<'_, T, L> {
 
 impl<T: Debug, L: MatLayout> Debug for Mat<'_, T, L> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let s = grid_schema::<usize>(|f| {
+        let s = cells_schema::<usize>(|f| {
             for col in 0..self.ncol {
-                f.column(col, |&&row| cell!("{:?}", &self[[row, col]]))
+                f.column(col, |&row| cell!("{:?}", &self[[row, col]]))
             }
         });
-        let mut g = Grid::new_with_schema(s);
-        g.extend(0..self.nrow);
-        write!(f, "{g}")
+        write!(f, "{}", to_grid_with_schema(0..self.nrow, s))
     }
 }
 

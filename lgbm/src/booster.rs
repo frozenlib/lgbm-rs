@@ -25,7 +25,7 @@ use std::{
     ptr::null_mut,
     sync::Arc,
 };
-use text_grid::{cells_e, grid_schema, CellsSource, Grid};
+use text_grid::{cells_f, cells_schema, to_grid_with_schema, Cells};
 
 #[repr(u32)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -531,7 +531,7 @@ impl Prediction {
         self.num[2] - 1
     }
 
-    fn fmt_with<T: CellsSource>(
+    fn fmt_with<T: Cells>(
         &self,
         f: &mut std::fmt::Formatter<'_>,
         to_cells: impl Fn(f64) -> T,
@@ -541,7 +541,7 @@ impl Prediction {
         writeln!(f, "num_2     : {}", self.num[2])?;
         self.fmt_values_with(f, to_cells)
     }
-    fn fmt_values_with<T: CellsSource>(
+    fn fmt_values_with<T: Cells>(
         &self,
         f: &mut std::fmt::Formatter<'_>,
         to_cells: impl Fn(f64) -> T,
@@ -549,15 +549,13 @@ impl Prediction {
         writeln!(f)?;
         match (self.num_class(), self.num[2]) {
             (_, 1) => {
-                let schema = grid_schema(|f| {
-                    f.column("", |&&row| row);
+                let schema = cells_schema(|f| {
+                    f.column("", |&row| row);
                     for column in 0..self.num_class() {
-                        f.column(column, |&&row| to_cells(self[[row, column]]));
+                        f.column(column, |&row| to_cells(self[[row, column]]));
                     }
                 });
-                let mut g = Grid::new_with_schema(schema);
-                g.extend(0..self.num_data());
-                writeln!(f, "{g}")?;
+                writeln!(f, "{}", to_grid_with_schema(0..self.num_data(), schema))?;
             }
             (_, _) => {
                 writeln!(f, "{:?}", &self.values)?;
@@ -584,9 +582,9 @@ impl std::fmt::Display for Prediction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let p = f.precision();
         if let Some(p) = p {
-            self.fmt_with(f, |x| cells_e!("{:.*}", p, x))
+            self.fmt_with(f, |x| cells_f!("{:.*}", p, x))
         } else {
-            self.fmt_with(f, |x| cells_e!("{:}", x))
+            self.fmt_with(f, |x| cells_f!("{:}", x))
         }
     }
 }
@@ -594,9 +592,9 @@ impl std::fmt::LowerExp for Prediction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let p = f.precision();
         if let Some(p) = p {
-            self.fmt_with(f, |x| cells_e!("{:.*e}", p, x))
+            self.fmt_with(f, |x| cells_f!("{:.*e}", p, x))
         } else {
-            self.fmt_with(f, |x| cells_e!("{:e}", x))
+            self.fmt_with(f, |x| cells_f!("{:e}", x))
         }
     }
 }
@@ -604,9 +602,9 @@ impl std::fmt::UpperExp for Prediction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let p = f.precision();
         if let Some(p) = p {
-            self.fmt_with(f, |x| cells_e!("{:.*E}", p, x))
+            self.fmt_with(f, |x| cells_f!("{:.*E}", p, x))
         } else {
-            self.fmt_with(f, |x| cells_e!("{:E}", x))
+            self.fmt_with(f, |x| cells_f!("{:E}", x))
         }
     }
 }
@@ -617,9 +615,9 @@ impl std::fmt::Debug for Prediction {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 let p = f.precision();
                 if let Some(p) = p {
-                    self.0.fmt_values_with(f, |x| cells_e!("{:.*?}", p, x))
+                    self.0.fmt_values_with(f, |x| cells_f!("{:.*?}", p, x))
                 } else {
-                    self.0.fmt_values_with(f, |x| cells_e!("{:?}", x))
+                    self.0.fmt_values_with(f, |x| cells_f!("{:?}", x))
                 }
             }
         }
