@@ -122,4 +122,3 @@ This project is licensed under MIT. See the LICENSE files for details.
 ## Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you will be under the MIT license, without any additional terms or conditions.
-
