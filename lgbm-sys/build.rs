@@ -50,7 +50,12 @@ fn build_linux() {
     }
 }
 fn build_macos() {
-    println!("cargo:rustc-link-lib=dylib=_lightgbm");
+    let target = env::var("CARGO_BUILD_TARGET").unwrap();
+    if target.contains("aarch64") {
+        println!("cargo:rustc-link-lib=dylib=lightgbm");
+    } else {
+        println!("cargo:rustc-link-lib=dylib=_lightgbm");
+    }
 }
 
 fn env_var(key: &str) -> String {

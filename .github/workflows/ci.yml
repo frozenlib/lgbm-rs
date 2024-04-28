@@ -65,7 +65,7 @@ jobs:
       - name: Rustup update stable
         run: rustup update stable
       - name: Show cargo version
-        run: cargo --version
+        run: cargo --version -v
       - name: Build
         run: cargo build --verbose
       - name: Build tests
