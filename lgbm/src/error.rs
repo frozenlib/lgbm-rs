@@ -1,7 +1,6 @@
 use lgbm_sys::LGBM_GetLastError;
 use std::{
     ffi::{CStr, FromBytesWithNulError, FromVecWithNulError, IntoStringError, NulError},
-    fmt::Display,
     num::TryFromIntError,
     os::raw::c_int,
     string::FromUtf8Error,
@@ -22,7 +21,7 @@ impl Error {
             message: message.to_string(),
         }
     }
-    pub fn from_error(e: impl std::error::Error + Display) -> Self {
+    pub fn from_error(e: impl std::error::Error) -> Self {
         Self {
             code: None,
             message: e.to_string(),
