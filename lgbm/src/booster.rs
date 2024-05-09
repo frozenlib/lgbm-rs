@@ -360,7 +360,7 @@ impl Booster {
     #[doc(alias = "LGBM_BoosterPredictForMat")]
     pub fn predict_for_mat<T: FeatureData>(
         &self,
-        mat: &impl AsMat<T>,
+        mat: impl AsMat<T>,
         predict_type: PredictType,
         start_iteration: usize,
         num_iteration: Option<usize>,

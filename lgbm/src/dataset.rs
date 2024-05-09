@@ -108,7 +108,7 @@ impl Dataset {
     /// [LGBM_DatasetCreateFromMat](https://lightgbm.readthedocs.io/en/latest/C-API.html#c.LGBM_DatasetCreateFromMat)
     #[doc(alias = "LGBM_DatasetCreateFromMat")]
     pub fn from_mat<T: FeatureData>(
-        mat: &impl AsMat<T>,
+        mat: impl AsMat<T>,
         reference: Option<&Dataset>,
         parameters: &Parameters,
     ) -> Result<Self> {

@@ -365,9 +365,17 @@ impl<T: Debug, L: MatLayout> Debug for Mat<'_, T, L> {
     }
 }
 
+/// A trait for borrow [`Mat`].
 pub trait AsMat<T> {
     type Layout: MatLayout;
     fn as_mat(&self) -> Mat<T, Self::Layout>;
+}
+
+impl<M: AsMat<T>, T> AsMat<T> for &M {
+    type Layout = M::Layout;
+    fn as_mat(&self) -> Mat<T, Self::Layout> {
+        (*self).as_mat()
+    }
 }
 
 fn to_range(value: impl RangeBounds<usize>, len: usize) -> Range<usize> {
