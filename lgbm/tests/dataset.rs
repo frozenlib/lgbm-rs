@@ -16,7 +16,7 @@ fn from_csv() -> Result<()> {
 #[test]
 fn from_mat_f32() -> Result<()> {
     let d = Dataset::from_mat(
-        &MatBuf::from_rows([[1.0f32, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        MatBuf::from_rows([[1.0f32, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
         &parameters(),
     )?;
@@ -29,7 +29,7 @@ fn from_mat_f32() -> Result<()> {
 #[test]
 fn from_mat_f64() -> Result<()> {
     let d = Dataset::from_mat(
-        &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
         &parameters(),
     )?;
@@ -57,7 +57,7 @@ fn from_mats() -> Result<()> {
 #[test]
 fn set_label() -> Result<()> {
     let mut d = Dataset::from_mat(
-        &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
         &parameters(),
     )?;
@@ -69,7 +69,7 @@ fn set_label() -> Result<()> {
 #[test]
 fn get_feature_names() -> Result<()> {
     let mut d = Dataset::from_mat(
-        &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
         &parameters(),
     )?;
@@ -84,7 +84,7 @@ fn get_feature_names() -> Result<()> {
 #[test]
 fn set_feature_names_string() -> Result<()> {
     let mut d = Dataset::from_mat(
-        &MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        MatBuf::from_rows([[1.0f64, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
         &parameters(),
     )?;

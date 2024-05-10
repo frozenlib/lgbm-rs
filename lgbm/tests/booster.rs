@@ -9,7 +9,7 @@ use std::sync::Arc;
 #[test]
 fn booster_new() -> Result<()> {
     let train_data = Dataset::from_mat(
-        &MatBuf::from_rows([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]),
+        MatBuf::from_rows([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]),
         None,
         &parameters(),
     )?;
@@ -30,7 +30,7 @@ fn binary_classification() -> Result<()> {
     println!("make train dataset");
     let train_feature = make_features(128, num_class);
     let train_label = make_labels(128, num_class);
-    let mut train = Dataset::from_mat(&train_feature, None, &p)?;
+    let mut train = Dataset::from_mat(train_feature, None, &p)?;
     train.set_field(Field::LABEL, &train_label)?;
 
     println!("make test dataset");
@@ -88,7 +88,7 @@ fn binary_classification_categorical() -> Result<()> {
     println!("make train dataset");
     let train_feature = make_features_categorycal(128, num_category);
     let train_label = make_labels_categorycal(128, num_category);
-    let mut train = Dataset::from_mat(&train_feature, None, &p)?;
+    let mut train = Dataset::from_mat(train_feature, None, &p)?;
     train.set_field(Field::LABEL, &train_label)?;
 
     println!("make test dataset");
@@ -144,7 +144,7 @@ fn multiclass_classification() -> Result<()> {
     println!("make train dataset");
     let train_feature = make_features(128, num_class);
     let train_label = make_labels(128, num_class);
-    let mut train = Dataset::from_mat(&train_feature, None, &p)?;
+    let mut train = Dataset::from_mat(train_feature, None, &p)?;
     train.set_field(Field::LABEL, &train_label)?;
 
     println!("make test dataset");
@@ -203,7 +203,7 @@ fn update_one_iter_custom() -> Result<()> {
     println!("make train dataset");
     let train_feature = make_features(128, num_class);
     let train_label = make_labels(128, num_class);
-    let mut train = Dataset::from_mat(&train_feature, None, &p)?;
+    let mut train = Dataset::from_mat(train_feature, None, &p)?;
     train.set_field(Field::LABEL, &train_label)?;
 
     println!("make test dataset");
@@ -496,7 +496,7 @@ fn make_dataset(
     reference: Option<&Dataset>,
     p: &Parameters,
 ) -> Result<Arc<Dataset>> {
-    let mut d = Dataset::from_mat(&make_features(num_row, num_class), reference, p)?;
+    let mut d = Dataset::from_mat(make_features(num_row, num_class), reference, p)?;
     d.set_field(Field::LABEL, &make_labels(num_row, num_class))?;
     Ok(Arc::new(d))
 }
