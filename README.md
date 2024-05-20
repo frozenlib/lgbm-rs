@@ -29,7 +29,7 @@ export LIGHTGBM_LIB_PATH=/opt/homebrew/Cellar/lightgbm/4.3.0/lib/
 
 ```toml
 [dependencies]
-lgbm = "0.0.2"
+lgbm = "0.0.3"
 ```
 
 **main.rs**
