@@ -15,10 +15,12 @@ Unofficial Rust bindings for [LightGBM](https://lightgbm.readthedocs.io/en/lates
 
 ### MacOS
 
-Run the following command to install LightGBM on your system.
+1. Run `brew install lightgbm` and install LightGBM on your system.
+2. Set the environment variable `LIGHTGBM_LIB_PATH` to the directory containing `lib_lightgbm.dylib`.
 
 ```sh
 brew install lightgbm
+export LIGHTGBM_LIB_PATH=/opt/homebrew/Cellar/lightgbm/4.3.0/lib/
 ```
 
 ## Example

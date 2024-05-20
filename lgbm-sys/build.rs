@@ -50,13 +50,20 @@ fn build_linux() {
     }
 }
 fn build_macos() {
+    if let Some(dir) = try_env_var("LIGHTGBM_LIB_DIR") {
+        println!("cargo:rustc-link-search={dir}");
+    }
     println!("cargo:rustc-link-lib=dylib=_lightgbm");
 }
 
 fn env_var(key: &str) -> String {
-    println!("cargo:rerun-if-env-changed={key}");
-    env::var(key).unwrap_or_else(|_| panic!("environment variable `{key}` is not set"))
+    try_env_var(key).unwrap_or_else(|| panic!("environment variable `{key}` is not set"))
 }
+fn try_env_var(key: &str) -> Option<String> {
+    println!("cargo:rerun-if-env-changed={key}");
+    env::var(key).ok()
+}
+
 fn rerun_if_changed(path: &Path) {
     println!("cargo:rerun-if-changed={}", path.display());
 }

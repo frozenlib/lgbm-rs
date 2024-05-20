@@ -10,10 +10,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13]
+        os: [ubuntu-latest, windows-latest, macos-13, macos-latest]
         link: [static, dynamic]
         exclude:
           - os: macos-13
+            link: static
+          - os: macos-latest
             link: static
 
     steps:
@@ -57,10 +59,16 @@ jobs:
           cmake ..
           make -j4
 
-      - name: Install LightGBM (macos - dynamic)
+      - name: Install LightGBM (macos-13 - dynamic)
         if: matrix.os == 'macos-13' && matrix.link == 'dynamic'
         run: |
           brew install lightgbm
+
+      - name: Install LightGBM (macos - dynamic)
+        if: matrix.os == 'macos-latest' && matrix.link == 'dynamic'
+        run: |
+          brew install lightgbm
+          echo "LIGHTGBM_LIB_DIR=/opt/homebrew/Cellar/lightgbm/4.3.0/lib/" >> $GITHUB_ENV
 
       - name: Rustup update stable
         run: rustup update stable
