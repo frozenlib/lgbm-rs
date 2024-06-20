@@ -20,7 +20,7 @@ Unofficial Rust bindings for [LightGBM](https://lightgbm.readthedocs.io/en/lates
 
 ```sh
 brew install lightgbm
-export LIGHTGBM_LIB_PATH=/opt/homebrew/Cellar/lightgbm/4.3.0/lib/
+export LIGHTGBM_LIB_PATH=/opt/homebrew/Cellar/lightgbm/4.4.0/lib/
 ```
 
 ## Example
