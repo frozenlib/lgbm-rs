@@ -11,16 +11,16 @@ Unofficial Rust bindings for [LightGBM](https://lightgbm.readthedocs.io/en/lates
 ### Windows or Linux
 
 1. Install LightGBM and build according to [LightGBM Documentation](https://lightgbm.readthedocs.io/en/latest/Installation-Guide.html).
-2. Set the environment variable `LIGHTGBM_LIB_PATH` to the directory containing the build output (`.dll` and `.lib` on Windows, `.so` on Linux).
+2. Set the environment variable `LIGHTGBM_LIB_DIR` to the directory containing the build output (`.dll` and `.lib` on Windows, `.so` on Linux).
 
 ### MacOS
 
 1. Run `brew install lightgbm` and install LightGBM on your system.
-2. Set the environment variable `LIGHTGBM_LIB_PATH` to the directory containing `lib_lightgbm.dylib`.
+2. Set the environment variable `LIGHTGBM_LIB_DIR` to the directory containing `lib_lightgbm.dylib`.
 
 ```sh
 brew install lightgbm
-export LIGHTGBM_LIB_PATH=/opt/homebrew/Cellar/lightgbm/4.5.0/lib/
+export LIGHTGBM_LIB_DIR=/opt/homebrew/Cellar/lightgbm/4.5.0/lib/
 ```
 
 ## Example
@@ -113,9 +113,9 @@ The following types of linking are supported.
 | Linux   | ✔      | ✔       |
 | MacOS   |        | ✔       |
 
-On Windows, if `lib_lightgbm.dll` exists in the directory specified by `LIGHTGBM_LIB_PATH`, it will be dynamically linked. Otherwise, it will be statically linked.
+On Windows, if `lib_lightgbm.dll` exists in the directory specified by `LIGHTGBM_LIB_DIR`, it will be dynamically linked. Otherwise, it will be statically linked.
 
-On Linux, if `lib_lightgbm.a` exists in the directory specified by `LIGHTGBM_LIB_PATH`, it is statically linked. Otherwise, it is dynamically linked.
+On Linux, if `lib_lightgbm.a` exists in the directory specified by `LIGHTGBM_LIB_DIR`, it is statically linked. Otherwise, it is dynamically linked.
 
 ## License
 
