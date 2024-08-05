@@ -13,7 +13,7 @@ use lgbm_sys::{
 };
 use std::{
     marker::PhantomData,
-    os::raw::{c_int, c_void},
+    os::raw::{c_char, c_int, c_void},
     path::Path,
     ptr::{null, null_mut},
     slice,
@@ -67,8 +67,8 @@ impl<T> Field<T> {
         }
     }
 
-    fn name_ptr(&self) -> *const i8 {
-        self.name.as_ptr() as *const i8
+    fn name_ptr(&self) -> *const c_char {
+        self.name.as_ptr() as *const c_char
     }
 }
 impl Field<f32> {
