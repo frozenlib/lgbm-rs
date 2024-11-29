@@ -611,7 +611,7 @@ impl std::fmt::UpperExp for Prediction {
 impl std::fmt::Debug for Prediction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         struct Values<'a>(&'a Prediction);
-        impl<'a> std::fmt::Debug for Values<'a> {
+        impl std::fmt::Debug for Values<'_> {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 let p = f.precision();
                 if let Some(p) = p {
