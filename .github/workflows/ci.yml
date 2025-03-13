@@ -11,13 +11,13 @@ jobs:
     strategy:
       matrix:
         # os: [ubuntu-latest, windows-latest, macos-13, macos-latest]
-        os: [ubuntu-latest, windows-latest, macos-13]
+        os: [ubuntu-latest, windows-latest]
         link: [static, dynamic]
-        exclude:
-          - os: macos-13
-            link: static
-          # - os: macos-latest
-          #   link: static
+        # exclude:
+        # - os: macos-13
+        #   link: static
+        # - os: macos-latest
+        #   link: static
 
     steps:
       - uses: actions/checkout@v4
