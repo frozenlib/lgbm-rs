@@ -15,8 +15,8 @@ jobs:
         exclude:
           - os: macos-13
             link: static
-          - os: macos-latest
-            link: static
+          # - os: macos-latest
+          #   link: static
 
     steps:
       - uses: actions/checkout@v4
