@@ -141,7 +141,7 @@ impl Dataset {
             return Err(Error::from_message("mats must not be empty"));
         }
         let ncol = mats[0].ncol();
-        let is_row_major = mats[0].is_row_major();
+        let mut is_row_major = Vec::new();
         let mut nrows: Vec<i32> = Vec::with_capacity(mats.len());
         let mut mat_ptrs = Vec::with_capacity(mats.len());
         for mat in &mats {
@@ -150,9 +150,7 @@ impl Dataset {
                     "mats must have the same number of columns",
                 ));
             }
-            if mat.is_row_major() != is_row_major {
-                return Err(Error::from_message("mats must have the same layout"));
-            }
+            is_row_major.push(mat.is_row_major());
             nrows.push(mat.nrow().try_into()?);
             mat_ptrs.push(mat.as_data_ptr());
         }
@@ -164,7 +162,7 @@ impl Dataset {
                 T::DATA_TYPE,
                 nrows.as_mut_ptr(),
                 ncol.try_into()?,
-                is_row_major,
+                is_row_major.as_mut_ptr(),
                 parameters.to_cstring()?.as_ptr(),
                 to_dataset_handle(reference),
                 &mut handle,

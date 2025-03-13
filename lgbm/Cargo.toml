@@ -19,7 +19,7 @@ lgbm-sys = { version = "0.0.1", path = "../lgbm-sys" }
 derive-ex = "0.1.8"
 text-grid = "0.4.1"
 parse-display = "0.10.0"
-serde = { version = "1.0.204", features = ["derive"] }
+serde = { version = "1.0.219", features = ["derive"] }
 
 [dev-dependencies]
-anyhow = "1.0.86"
+anyhow = "1.0.97"

@@ -10,6 +10,8 @@ fn main() -> anyhow::Result<()> {
 
     let bindings = bindgen::Builder::default()
         .clang_arg("-Isubmodules/LightGBM/include")
+        .clang_arg("-x")
+        .clang_arg("c++")
         .header("submodules/LightGBM/include/LightGBM/c_api.h")
         .parse_callbacks(Box::new(Callbacks))
         .allowlist_file("submodules/LightGBM/include/LightGBM/c_api.h")
