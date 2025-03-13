@@ -68,7 +68,7 @@ jobs:
         if: matrix.os == 'macos-latest' && matrix.link == 'dynamic'
         run: |
           brew install lightgbm
-          echo "LIGHTGBM_LIB_DIR=/opt/homebrew/Cellar/lightgbm/4.5.0/lib/" >> $GITHUB_ENV
+          echo "LIGHTGBM_LIB_DIR=/opt/homebrew/Cellar/lightgbm/4.6.0/lib/" >> $GITHUB_ENV
 
       - name: Rustup update stable
         run: rustup update stable
