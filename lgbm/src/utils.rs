@@ -1,6 +1,6 @@
-use crate::{to_result, Error, Result};
+use crate::{Error, Result, to_result};
 use std::{
-    ffi::{c_char, CString},
+    ffi::{CString, c_char},
     os::raw::c_int,
     path::Path,
     ptr::null_mut,
@@ -15,11 +15,7 @@ pub fn to_cstring(value: &str) -> Result<CString> {
 }
 
 pub const fn bool_to_int(value: bool) -> c_int {
-    if value {
-        1
-    } else {
-        0
-    }
+    if value { 1 } else { 0 }
 }
 pub const fn int_to_bool(value: c_int) -> bool {
     value != 0

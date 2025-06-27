@@ -1,4 +1,4 @@
-use crate::{utils::bool_to_int, Data, Error, Result};
+use crate::{Data, Error, Result, utils::bool_to_int};
 use derive_ex::derive_ex;
 use std::{
     ffi::c_void,

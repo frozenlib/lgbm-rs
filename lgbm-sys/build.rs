@@ -10,7 +10,7 @@ fn main() {
         "windows" => build_windows(),
         "linux" => build_linux(),
         "macos" => build_macos(),
-        _ => panic!("Unsupported OS: {}", os),
+        _ => panic!("Unsupported OS: {os}"),
     }
 }
 fn build_windows() {

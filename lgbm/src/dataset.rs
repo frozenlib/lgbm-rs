@@ -1,15 +1,15 @@
 use crate::{
+    Error, Parameters, Result,
     mat::AsMat,
     to_result,
     utils::{get_strings, path_to_cstring, to_cstring},
-    Error, Parameters, Result,
 };
 use lgbm_sys::{
-    DatasetHandle, LGBM_DatasetCreateFromFile, LGBM_DatasetCreateFromMat,
-    LGBM_DatasetCreateFromMats, LGBM_DatasetDumpText, LGBM_DatasetFree,
-    LGBM_DatasetGetFeatureNames, LGBM_DatasetGetField, LGBM_DatasetGetNumData,
-    LGBM_DatasetGetNumFeature, LGBM_DatasetSetFeatureNames, LGBM_DatasetSetField,
-    C_API_DTYPE_FLOAT32, C_API_DTYPE_FLOAT64, C_API_DTYPE_INT32, C_API_DTYPE_INT64,
+    C_API_DTYPE_FLOAT32, C_API_DTYPE_FLOAT64, C_API_DTYPE_INT32, C_API_DTYPE_INT64, DatasetHandle,
+    LGBM_DatasetCreateFromFile, LGBM_DatasetCreateFromMat, LGBM_DatasetCreateFromMats,
+    LGBM_DatasetDumpText, LGBM_DatasetFree, LGBM_DatasetGetFeatureNames, LGBM_DatasetGetField,
+    LGBM_DatasetGetNumData, LGBM_DatasetGetNumFeature, LGBM_DatasetSetFeatureNames,
+    LGBM_DatasetSetField,
 };
 use std::{
     marker::PhantomData,

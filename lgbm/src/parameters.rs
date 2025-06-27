@@ -1,6 +1,6 @@
 //! <https://lightgbm.readthedocs.io/en/latest/Parameters.html>
 
-use crate::{utils::to_cstring, Result};
+use crate::{Result, utils::to_cstring};
 use parse_display::{Display, FromStr};
 use serde::{Deserialize, Serialize};
 use std::ffi::CString;
@@ -33,7 +33,7 @@ impl std::fmt::Display for ParameterValue {
                         if i > 0 {
                             write!(f, ",")?;
                         }
-                        write!(f, "{}", value)?;
+                        write!(f, "{value}")?;
                     }
                     Ok(())
                 }

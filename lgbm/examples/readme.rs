@@ -1,6 +1,6 @@
 use lgbm::{
-    parameters::{Objective, Verbosity},
     Booster, Dataset, Field, MatBuf, Parameters, PredictType,
+    parameters::{Objective, Verbosity},
 };
 use std::sync::Arc;
 

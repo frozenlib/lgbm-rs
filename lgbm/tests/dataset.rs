@@ -1,5 +1,5 @@
 use anyhow::Result;
-use lgbm::{parameters::Verbosity, Dataset, Field, MatBuf, Parameters};
+use lgbm::{Dataset, Field, MatBuf, Parameters, parameters::Verbosity};
 use std::env;
 
 #[test]

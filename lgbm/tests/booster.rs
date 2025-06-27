@@ -1,8 +1,8 @@
 use anyhow::Result;
 use lgbm::{
+    Booster, Dataset, FeatureImportanceType, Field, MatBuf, Parameters, PredictType,
     mat::RowMajor,
     parameters::{Boosting, Metric, Objective, Verbosity},
-    Booster, Dataset, FeatureImportanceType, Field, MatBuf, Parameters, PredictType,
 };
 use std::sync::Arc;
 
@@ -481,11 +481,7 @@ fn make_labels_categorycal(num_row: usize, num_category: usize) -> Vec<f32> {
         .map(|x| {
             let category = x % num_category;
             let value = (x / num_category) % ((category + 1) * 2);
-            if value > category {
-                1.0
-            } else {
-                0.0
-            }
+            if value > category { 1.0 } else { 0.0 }
         })
         .collect()
 }

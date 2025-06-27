@@ -1,21 +1,22 @@
 use crate::{
+    Dataset, Error, FeatureData, Parameters, Result,
     mat::AsMat,
     to_result,
     utils::{get_cstring, get_strings, int_to_bool, path_to_cstring},
-    Dataset, Error, FeatureData, Parameters, Result,
 };
 use lgbm_sys::{
-    BoosterHandle, LGBM_BoosterAddValidData, LGBM_BoosterCalcNumPredict, LGBM_BoosterCreate,
-    LGBM_BoosterCreateFromModelfile, LGBM_BoosterDumpModel, LGBM_BoosterFeatureImportance,
-    LGBM_BoosterFree, LGBM_BoosterGetCurrentIteration, LGBM_BoosterGetEval,
-    LGBM_BoosterGetEvalCounts, LGBM_BoosterGetEvalNames, LGBM_BoosterGetFeatureNames,
-    LGBM_BoosterGetNumClasses, LGBM_BoosterGetNumFeature, LGBM_BoosterGetNumPredict,
-    LGBM_BoosterGetPredict, LGBM_BoosterLoadModelFromString, LGBM_BoosterNumModelPerIteration,
+    BoosterHandle, C_API_FEATURE_IMPORTANCE_GAIN, C_API_FEATURE_IMPORTANCE_SPLIT,
+    C_API_MATRIX_TYPE_CSC, C_API_MATRIX_TYPE_CSR, C_API_PREDICT_CONTRIB, C_API_PREDICT_LEAF_INDEX,
+    C_API_PREDICT_NORMAL, C_API_PREDICT_RAW_SCORE, LGBM_BoosterAddValidData,
+    LGBM_BoosterCalcNumPredict, LGBM_BoosterCreate, LGBM_BoosterCreateFromModelfile,
+    LGBM_BoosterDumpModel, LGBM_BoosterFeatureImportance, LGBM_BoosterFree,
+    LGBM_BoosterGetCurrentIteration, LGBM_BoosterGetEval, LGBM_BoosterGetEvalCounts,
+    LGBM_BoosterGetEvalNames, LGBM_BoosterGetFeatureNames, LGBM_BoosterGetNumClasses,
+    LGBM_BoosterGetNumFeature, LGBM_BoosterGetNumPredict, LGBM_BoosterGetPredict,
+    LGBM_BoosterLoadModelFromString, LGBM_BoosterNumModelPerIteration,
     LGBM_BoosterNumberOfTotalModel, LGBM_BoosterPredictForMat, LGBM_BoosterRollbackOneIter,
     LGBM_BoosterSaveModel, LGBM_BoosterSaveModelToString, LGBM_BoosterUpdateOneIter,
-    LGBM_BoosterUpdateOneIterCustom, C_API_FEATURE_IMPORTANCE_GAIN, C_API_FEATURE_IMPORTANCE_SPLIT,
-    C_API_MATRIX_TYPE_CSC, C_API_MATRIX_TYPE_CSR, C_API_PREDICT_CONTRIB, C_API_PREDICT_LEAF_INDEX,
-    C_API_PREDICT_NORMAL, C_API_PREDICT_RAW_SCORE,
+    LGBM_BoosterUpdateOneIterCustom,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -25,7 +26,7 @@ use std::{
     ptr::null_mut,
     sync::Arc,
 };
-use text_grid::{cells_f, cells_schema, to_grid_with_schema, Cells};
+use text_grid::{Cells, cells_f, cells_schema, to_grid_with_schema};
 
 #[repr(u32)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
