@@ -119,7 +119,20 @@ impl Parameters {
 }
 
 /// <https://lightgbm.readthedocs.io/en/latest/Parameters.html#objective>
-#[derive(Copy, Clone, Default, Debug, PartialEq, Eq, Display, Hash, PartialOrd, Ord)]
+#[derive(
+    Copy,
+    Clone,
+    Default,
+    Debug,
+    PartialEq,
+    Eq,
+    Display,
+    Hash,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+)]
 #[display(style = "snake_case")]
 pub enum Objective {
     #[default]
@@ -148,7 +161,20 @@ impl From<Objective> for ParameterValue {
 }
 
 /// <https://lightgbm.readthedocs.io/en/latest/Parameters.html#boosting>
-#[derive(Copy, Clone, Default, Debug, PartialEq, Eq, Display, Hash, PartialOrd, Ord)]
+#[derive(
+    Copy,
+    Clone,
+    Default,
+    Debug,
+    PartialEq,
+    Eq,
+    Display,
+    Hash,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+)]
 #[display(style = "snake_case")]
 pub enum Boosting {
     #[default]
@@ -164,7 +190,20 @@ impl From<Boosting> for ParameterValue {
 }
 
 /// <https://lightgbm.readthedocs.io/en/latest/Parameters.html#data_sample_strategy>
-#[derive(Copy, Clone, Default, Debug, PartialEq, Eq, Display, Hash, PartialOrd, Ord)]
+#[derive(
+    Copy,
+    Clone,
+    Default,
+    Debug,
+    PartialEq,
+    Eq,
+    Display,
+    Hash,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+)]
 #[display(style = "snake_case")]
 pub enum DataSampleStrategy {
     #[default]
@@ -178,7 +217,20 @@ impl From<DataSampleStrategy> for ParameterValue {
 }
 
 /// <https://lightgbm.readthedocs.io/en/latest/Parameters.html#tree_learner>
-#[derive(Copy, Clone, Default, Debug, PartialEq, Eq, Display, Hash, PartialOrd, Ord)]
+#[derive(
+    Copy,
+    Clone,
+    Default,
+    Debug,
+    PartialEq,
+    Eq,
+    Display,
+    Hash,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+)]
 #[display(style = "snake_case")]
 pub enum TreeLearner {
     #[default]
@@ -194,7 +246,20 @@ impl From<TreeLearner> for ParameterValue {
 }
 
 /// <https://lightgbm.readthedocs.io/en/latest/Parameters.html#device_type>
-#[derive(Copy, Clone, Default, Debug, PartialEq, Eq, Display, Hash, PartialOrd, Ord)]
+#[derive(
+    Copy,
+    Clone,
+    Default,
+    Debug,
+    PartialEq,
+    Eq,
+    Display,
+    Hash,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+)]
 #[display(style = "snake_case")]
 pub enum DeviceType {
     #[default]
@@ -210,7 +275,20 @@ impl From<DeviceType> for ParameterValue {
 }
 
 /// <https://lightgbm.readthedocs.io/en/latest/Parameters.html#metric>
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Display, FromStr, Hash, PartialOrd, Ord)]
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    PartialEq,
+    Eq,
+    Display,
+    FromStr,
+    Hash,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+)]
 #[display(style = "snake_case")]
 pub enum Metric {
     L1,
@@ -275,7 +353,9 @@ impl From<Metric> for ParameterValue {
 }
 
 /// <https://lightgbm.readthedocs.io/en/latest/Parameters.html#verbosity>
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Display, Hash, PartialOrd, Ord)]
+#[derive(
+    Copy, Clone, Debug, PartialEq, Eq, Display, Hash, PartialOrd, Ord, Serialize, Deserialize,
+)]
 
 pub enum Verbosity {
     Fatal,
