@@ -19,9 +19,7 @@ fn build_windows() {
     let dir_path = Path::new(&dir);
     let lib_path = dir_path.join("lib_lightgbm.lib");
     let dll_path = dir_path.join("lib_lightgbm.dll");
-    rerun_if_changed(&lib_path);
-    rerun_if_changed(&dll_path);
-
+    rerun_if_changed(dir_path);
     if !lib_path.is_file() {
         panic!("lib_lightgbm.lib not found in {dir}");
     }
@@ -37,8 +35,7 @@ fn build_linux() {
     let dir_path = Path::new(&dir);
     let a_path = dir_path.join("lib_lightgbm.a");
     let so_path = dir_path.join("lib_lightgbm.so");
-    rerun_if_changed(&a_path);
-    rerun_if_changed(&so_path);
+    rerun_if_changed(dir_path);
     if a_path.is_file() {
         println!("cargo:rustc-link-lib=static=_lightgbm");
         println!("cargo:rustc-link-lib=stdc++");
