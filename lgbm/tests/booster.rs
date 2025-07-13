@@ -2,9 +2,18 @@ use anyhow::Result;
 use lgbm::{
     Booster, Dataset, FeatureImportanceType, Field, MatBuf, Parameters, PredictType,
     mat::RowMajor,
-    parameters::{Boosting, Metric, Objective, Verbosity},
+    parameters::{Boosting, DeviceType, Metric, Objective, Verbosity},
 };
 use std::sync::Arc;
+
+fn test_device_type() -> DeviceType {
+    if let Ok(device_type) = std::env::var("LGBM_TEST_DEVICE_TYPE") {
+        if let Ok(device_type) = device_type.parse() {
+            return device_type;
+        }
+    }
+    DeviceType::Cpu
+}
 
 #[test]
 fn booster_new() -> Result<()> {
@@ -59,7 +68,7 @@ fn binary_classification() -> Result<()> {
         }
     }
 
-    let p = Parameters::new();
+    let p = parameters();
     let rs = b.predict_for_mat(&test_feature, PredictType::Normal, 0, None, &p)?;
     println!("\n{rs}");
     for i in 0..test_label.len() {
@@ -77,12 +86,11 @@ fn binary_classification() -> Result<()> {
 fn binary_classification_categorical() -> Result<()> {
     let num_category = 3;
 
-    let mut p = Parameters::new();
+    let mut p = parameters();
     p.push("boosting_type", Boosting::Gbdt);
     p.push("objective", Objective::Binary);
     p.push("metric", [Metric::BinaryLogloss, Metric::Auc]);
     p.push("min_data_in_leaf", 20);
-    p.push("verbosity", Verbosity::Fatal);
     p.push("categorical_feature", [0]);
 
     println!("make train dataset");
@@ -117,7 +125,7 @@ fn binary_classification_categorical() -> Result<()> {
         }
     }
 
-    let p = Parameters::new();
+    let p = parameters();
     let rs = b.predict_for_mat(&test_feature, PredictType::Normal, 0, None, &p)?;
     println!("\n{rs}");
     for i in 0..test_label.len() {
@@ -135,11 +143,10 @@ fn binary_classification_categorical() -> Result<()> {
 fn multiclass_classification() -> Result<()> {
     let num_class = 3;
 
-    let mut p = Parameters::new();
+    let mut p = parameters();
     p.push("num_class", num_class);
     p.push("objective", Objective::Multiclass);
     p.push("min_data_in_leaf", 20);
-    p.push("verbosity", Verbosity::Fatal);
 
     println!("make train dataset");
     let train_feature = make_features(128, num_class);
@@ -174,7 +181,8 @@ fn multiclass_classification() -> Result<()> {
         }
     }
 
-    let p = Parameters::new();
+    let p = parameters();
+
     let rs = b.predict_for_mat(&test_feature, PredictType::Normal, 0, None, &p)?;
     println!("\n{rs}");
     for n_data in 0..4 {
@@ -194,11 +202,10 @@ fn multiclass_classification() -> Result<()> {
 fn update_one_iter_custom() -> Result<()> {
     let num_class = 2;
 
-    let mut p = Parameters::new();
+    let mut p = parameters();
     p.push("boosting_type", Boosting::Gbdt);
     p.push("objective", Objective::Custom);
     p.push("min_data_in_leaf", 20);
-    p.push("verbosity", Verbosity::Fatal);
 
     println!("make train dataset");
     let train_feature = make_features(128, num_class);
@@ -244,7 +251,7 @@ fn update_one_iter_custom() -> Result<()> {
         }
     }
 
-    let p = Parameters::new();
+    let p = parameters();
     let rs = b.predict_for_mat(&test_feature, PredictType::Normal, 0, None, &p)?;
     println!("\n{rs}");
     for i in 0..test_label.len() {
@@ -260,9 +267,8 @@ fn update_one_iter_custom() -> Result<()> {
 
 #[test]
 fn calc_num_predict_binary() -> Result<()> {
-    let mut p = Parameters::new();
+    let mut p = parameters();
     p.push("objective", Objective::Binary);
-    p.push("verbosity", Verbosity::Fatal);
 
     let d = make_dataset(125, 2, None, &p)?;
     let mut b = Booster::new(d, &p)?;
@@ -296,10 +302,9 @@ fn calc_num_predict_binary() -> Result<()> {
 fn calc_num_predict_multiclass() -> Result<()> {
     let num_class = 3;
 
-    let mut p = Parameters::new();
+    let mut p = parameters();
     p.push("objective", Objective::Multiclass);
     p.push("num_class", num_class);
-    p.push("verbosity", Verbosity::Fatal);
 
     let d = make_dataset(125, num_class, None, &p)?;
     let mut b = Booster::new(d, &p)?;
@@ -333,9 +338,8 @@ fn calc_num_predict_multiclass() -> Result<()> {
 fn get_num_predict_binary() -> Result<()> {
     let num_row = [128, 64];
     let num_class = 2;
-    let mut p = Parameters::new();
+    let mut p = parameters();
     p.push("objective", Objective::Binary);
-    p.push("verbosity", Verbosity::Fatal);
 
     let train_data = make_dataset(num_row[0], num_class, None, &p)?;
     let valid_data = make_dataset(num_row[1], num_class, Some(&train_data), &p)?;
@@ -359,10 +363,9 @@ fn get_num_predict_multiclass() -> Result<()> {
     let num_row = [128, 64];
     let num_class = 3;
 
-    let mut p = Parameters::new();
+    let mut p = parameters();
     p.push("objective", Objective::Multiclass);
     p.push("num_class", num_class);
-    p.push("verbosity", Verbosity::Fatal);
 
     let train_data = make_dataset(num_row[0], num_class, None, &p)?;
     let valid_data = make_dataset(num_row[1], num_class, Some(&train_data), &p)?;
@@ -385,9 +388,8 @@ fn get_num_predict_multiclass() -> Result<()> {
 fn get_current_iteration() -> Result<()> {
     let num_row = [128, 64];
     let num_class = 2;
-    let mut p = Parameters::new();
+    let mut p = parameters();
     p.push("objective", Objective::Binary);
-    p.push("verbosity", Verbosity::Fatal);
 
     let train_data = make_dataset(num_row[0], num_class, None, &p)?;
     let valid_data = make_dataset(num_row[1], num_class, Some(&train_data), &p)?;
@@ -407,9 +409,8 @@ fn get_current_iteration() -> Result<()> {
 fn rollback_one_iter() -> Result<()> {
     let num_row = [128, 64];
     let num_class = 2;
-    let mut p = Parameters::new();
+    let mut p = parameters();
     p.push("objective", Objective::Binary);
-    p.push("verbosity", Verbosity::Fatal);
 
     let train_data = make_dataset(num_row[0], num_class, None, &p)?;
     let valid_data = make_dataset(num_row[1], num_class, Some(&train_data), &p)?;
@@ -432,9 +433,8 @@ fn rollback_one_iter() -> Result<()> {
 fn save_to_string() -> Result<()> {
     let num_row = [128, 64];
     let num_class = 2;
-    let mut p = Parameters::new();
+    let mut p = parameters();
     p.push("objective", Objective::Binary);
-    p.push("verbosity", Verbosity::Fatal);
 
     let train_data = make_dataset(num_row[0], num_class, None, &p)?;
     let valid_data = make_dataset(num_row[1], num_class, Some(&train_data), &p)?;
@@ -500,5 +500,7 @@ fn make_dataset(
 fn parameters() -> Parameters {
     let mut p = Parameters::new();
     p.push("verbosity", Verbosity::Fatal);
+    p.push("device_type", test_device_type());
+
     p
 }

@@ -259,6 +259,7 @@ impl From<TreeLearner> for ParameterValue {
     Ord,
     Serialize,
     Deserialize,
+    FromStr,
 )]
 #[display(style = "snake_case")]
 pub enum DeviceType {
