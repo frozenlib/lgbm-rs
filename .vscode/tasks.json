@@ -218,10 +218,12 @@
       "type": "shell",
       "label": "lightgbm build dynamic",
       "windows": {
-        "command": "mkdir build; cd build; cmake -A x64 ..;cmake --build . --target ALL_BUILD --config Release",
+        // "command": "mkdir build; cd build; cmake -A x64 ..;cmake --build . --target ALL_BUILD --config Release",
+        "command": "cmake -B build -S . -A x64; cmake --build build --target ALL_BUILD --config Release",
       },
       "linux": {
-        "command": "mkdir build; cd build; cmake ..;make -j4",
+        // "command": "mkdir build; cd build; cmake ..;make -j4",
+        "command": "cmake -B build -S .; cmake --build build -j4",
       },
       "options": {
         "cwd": "${workspaceFolder}/submodules/LightGBM"
@@ -232,10 +234,12 @@
       "type": "shell",
       "label": "lightgbm build static",
       "windows": {
-        "command": "mkdir build; cd build; cmake -A x64 -DBUILD_STATIC_LIB=ON ..;cmake --build . --target ALL_BUILD --config Release",
+        // "command": "mkdir build; cd build; cmake -A x64 -DBUILD_STATIC_LIB=ON ..;cmake --build . --target ALL_BUILD --config Release",
+        "command": "cmake -B build -S . -A x64 -DBUILD_STATIC_LIB=ON; cmake --build build --target ALL_BUILD --config Release",
       },
       "linux": {
-        "command": "mkdir build; cd build; cmake -DBUILD_STATIC_LIB=ON ..;make -j4",
+        // command": "mkdir build; cd build; cmake -DBUILD_STATIC_LIB=ON ..;make -j4",
+        "command": "cmake -B build -S . -DBUILD_STATIC_LIB=ON; cmake --build build -j4",
       },
       "options": {
         "cwd": "${workspaceFolder}/submodules/LightGBM"
@@ -248,10 +252,11 @@
       "type": "shell",
       "label": "lightgbm build dynamic gpu",
       "windows": {
-        "command": "mkdir build; cd build; cmake -A x64 -DUSE_GPU=1 -DBOOST_ROOT=${env:BOOST_ROOT} -DBOOST_LIBRARYDIR=${env:BOOST_ROOT}/stage/lib ..;cmake --build . --target ALL_BUILD --config Release",
+        // "command": "mkdir build; cd build; cmake -A x64 -DUSE_GPU=1 -DBOOST_ROOT=${env:BOOST_ROOT} -DBOOST_LIBRARYDIR=${env:BOOST_ROOT}/stage/lib ..;cmake --build . --target ALL_BUILD --config Release",
+        "command": "cmake -B build -S . -A x64 -DUSE_GPU=1 -DBOOST_ROOT=${env:BOOST_ROOT} -DBOOST_LIBRARYDIR=${env:BOOST_ROOT}/stage/lib; cmake --build build --target ALL_BUILD --config Release",
       },
       "linux": {
-        "command": "",
+        "command": "cmake -B build -S . -DUSE_GPU=1; cmake --build build -j4",
       },
       "options": {
         "cwd": "${workspaceFolder}/submodules/LightGBM"
