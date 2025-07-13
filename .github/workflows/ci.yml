@@ -22,42 +22,40 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Make build dir
-        run: mkdir submodules/LightGBM/build
 
       - name: Build LightGBM (windows - static)
         if: matrix.os == 'windows-latest' && matrix.link == 'static'
         run: |
           echo "LIGHTGBM_LIB_DIR=${{ github.workspace }}/submodules/LightGBM/Release" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          cd submodules/LightGBM/build
-          cmake -A x64 -DBUILD_STATIC_LIB=ON ..
-          cmake --build . --target ALL_BUILD --config Release
+          cd submodules/LightGBM
+          cmake -B build -S . -A x64 -DBUILD_STATIC_LIB=ON
+          cmake --build build --target ALL_BUILD --config Release
 
       - name: Build LightGBM (windows - dynamic)
         if: matrix.os == 'windows-latest' && matrix.link == 'dynamic'
         run: |
           echo "LIGHTGBM_LIB_DIR=${{ github.workspace }}/submodules/LightGBM/Release" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "${{ github.workspace }}/submodules/LightGBM/Release" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          cd submodules/LightGBM/build
-          cmake -A x64 ..
-          cmake --build . --target ALL_BUILD --config Release
+          cd submodules/LightGBM
+          cmake -B build -S . -A x64
+          cmake --build build --target ALL_BUILD --config Release
 
       - name: Build LightGBM (ubuntu - static)
         if: matrix.os == 'ubuntu-latest' && matrix.link == 'static'
         run: |
           echo "LIGHTGBM_LIB_DIR=${{ github.workspace }}/submodules/LightGBM" >> $GITHUB_ENV
-          cd submodules/LightGBM/build
-          cmake -DBUILD_STATIC_LIB=ON ..
-          make -j4
+          cd submodules/LightGBM
+          cmake -B build -S . -DBUILD_STATIC_LIB=ON
+          cmake --build build -j4
 
       - name: Build LightGBM (ubuntu - dynamic)
         if: matrix.os == 'ubuntu-latest' && matrix.link == 'dynamic'
         run: |
           echo "LIGHTGBM_LIB_DIR=${{ github.workspace }}/submodules/LightGBM" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ github.workspace }}/submodules/LightGBM" >> $GITHUB_ENV
-          cd submodules/LightGBM/build
-          cmake ..
-          make -j4
+          cd submodules/LightGBM
+          cmake -B build -S .
+          cmake --build build -j4
 
       - name: Install LightGBM (macos-13 - dynamic)
         if: matrix.os == 'macos-13' && matrix.link == 'dynamic'
