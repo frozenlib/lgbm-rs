@@ -7,10 +7,10 @@ use lgbm::{
 use std::sync::Arc;
 
 fn test_device_type() -> DeviceType {
-    if let Ok(device_type) = std::env::var("LGBM_TEST_DEVICE_TYPE") {
-        if let Ok(device_type) = device_type.parse() {
-            return device_type;
-        }
+    if let Ok(device_type) = std::env::var("LGBM_TEST_DEVICE_TYPE")
+        && let Ok(device_type) = device_type.parse()
+    {
+        return device_type;
     }
     DeviceType::Cpu
 }

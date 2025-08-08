@@ -153,7 +153,7 @@ impl<T> MatBuf<T, ColMajor> {
         assert_col(col, self.ncol);
         &mut self.values[col * self.nrow..][..self.nrow]
     }
-    pub fn cols(&self, range: impl RangeBounds<usize>) -> Mat<T, ColMajor> {
+    pub fn cols(&self, range: impl RangeBounds<usize>) -> Mat<'_, T, ColMajor> {
         self.as_mat().cols(range)
     }
 }
@@ -169,7 +169,7 @@ impl<T> MatBuf<T, RowMajor> {
         &mut self.values[row * self.ncol..][..self.ncol]
     }
     #[track_caller]
-    pub fn rows(&self, range: impl RangeBounds<usize>) -> Mat<T, RowMajor> {
+    pub fn rows(&self, range: impl RangeBounds<usize>) -> Mat<'_, T, RowMajor> {
         self.as_mat().rows(range)
     }
 }
@@ -232,7 +232,7 @@ impl<T: Debug> Debug for MatBuf<T> {
 }
 impl<T, L: MatLayout> AsMat<T> for MatBuf<T, L> {
     type Layout = L;
-    fn as_mat(&self) -> Mat<T, L> {
+    fn as_mat(&self) -> Mat<'_, T, L> {
         Mat {
             values: &self.values,
             nrow: self.nrow,
@@ -340,7 +340,7 @@ impl<'a, T> Mat<'a, T, RowMajor> {
 
 impl<T, L: MatLayout> AsMat<T> for Mat<'_, T, L> {
     type Layout = L;
-    fn as_mat(&self) -> Mat<T, L> {
+    fn as_mat(&self) -> Mat<'_, T, L> {
         *self
     }
 }
@@ -368,12 +368,12 @@ impl<T: Debug, L: MatLayout> Debug for Mat<'_, T, L> {
 /// A trait for borrow [`Mat`].
 pub trait AsMat<T> {
     type Layout: MatLayout;
-    fn as_mat(&self) -> Mat<T, Self::Layout>;
+    fn as_mat(&self) -> Mat<'_, T, Self::Layout>;
 }
 
 impl<M: AsMat<T>, T> AsMat<T> for &M {
     type Layout = M::Layout;
-    fn as_mat(&self) -> Mat<T, Self::Layout> {
+    fn as_mat(&self) -> Mat<'_, T, Self::Layout> {
         (*self).as_mat()
     }
 }
