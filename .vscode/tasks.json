@@ -117,7 +117,8 @@
     {
       "type": "shell",
       "label": "cargo fix & fmt",
-      "command": "cargo fix && cargo clippy --fix --allow-dirty && cargo fmt",
+      "command": "cargo fix --all-features --all-targets --allow-dirty && cargo clippy --fix --allow-dirty --all-features --all-targets && cargo fmt",
+      "args": [],
       "problemMatcher": [
         "$rustc"
       ],
@@ -268,6 +269,9 @@
       "label": "lightgbm build cuda",
       "linux": {
         "command": "cmake -B build -S . -DUSE_CUDA=ON; cmake --build build -j4",
+      },
+      "windows": {
+        "command": "echo 'CUDA build is not supported on Windows'",
       },
       "options": {
         "cwd": "${workspaceFolder}/submodules/LightGBM"
