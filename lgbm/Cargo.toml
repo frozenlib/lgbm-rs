@@ -1,6 +1,6 @@
 [package]
 name = "lgbm"
-version = "0.0.5"
+version = "0.0.6"
 edition = "2024"
 authors = ["frozenlib"]
 license = "MIT"
@@ -15,7 +15,7 @@ description = "Unofficial Rust bindings for LightGBM"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-lgbm-sys = { version = "0.0.1", path = "../lgbm-sys" }
+lgbm-sys = { version = "0.0.2", path = "../lgbm-sys" }
 derive-ex = "0.1.8"
 text-grid = "0.4.1"
 parse-display = "0.10.0"
