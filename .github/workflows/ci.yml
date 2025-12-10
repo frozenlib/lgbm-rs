@@ -10,11 +10,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13, macos-latest]
+        os: [ubuntu-latest, windows-latest,  macos-latest]
         link: [static, dynamic]
         exclude:
-          - os: macos-13
-            link: static
           - os: macos-latest
             link: static
 
@@ -56,12 +54,6 @@ jobs:
           cd submodules/LightGBM
           cmake -B build -S .
           cmake --build build -j4
-
-      - name: Install LightGBM (macos-13 - dynamic)
-        if: matrix.os == 'macos-13' && matrix.link == 'dynamic'
-        run: |
-          brew install lightgbm
-          echo "LIGHTGBM_LIB_DIR=$(brew --prefix)/lib" >> $GITHUB_ENV
 
       - name: Install LightGBM (macos - dynamic)
         if: matrix.os == 'macos-latest' && matrix.link == 'dynamic'
