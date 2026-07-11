@@ -559,7 +559,7 @@ impl Prediction {
                 writeln!(f, "{}", to_grid_with_schema(0..self.num_data(), schema))?;
             }
             (_, _) => {
-                writeln!(f, "{:?}", &self.values)?;
+                writeln!(f, "{:?}", self.values)?;
             }
         }
         Ok(())
