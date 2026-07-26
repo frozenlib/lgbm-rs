@@ -80,6 +80,42 @@ const _: () = {
     ["Offset of field: ArrowArray::private_data"]
         [::std::mem::offset_of!(ArrowArray, private_data) - 72usize];
 };
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ArrowArrayStream {
+    pub get_schema: ::std::option::Option<
+        unsafe extern "C" fn(
+            arg1: *mut ArrowArrayStream,
+            out: *mut ArrowSchema,
+        ) -> ::std::os::raw::c_int,
+    >,
+    pub get_next: ::std::option::Option<
+        unsafe extern "C" fn(
+            arg1: *mut ArrowArrayStream,
+            out: *mut ArrowArray,
+        ) -> ::std::os::raw::c_int,
+    >,
+    pub get_last_error: ::std::option::Option<
+        unsafe extern "C" fn(arg1: *mut ArrowArrayStream) -> *const ::std::os::raw::c_char,
+    >,
+    pub release: ::std::option::Option<unsafe extern "C" fn(arg1: *mut ArrowArrayStream)>,
+    pub private_data: *mut ::std::os::raw::c_void,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of ArrowArrayStream"][::std::mem::size_of::<ArrowArrayStream>() - 40usize];
+    ["Alignment of ArrowArrayStream"][::std::mem::align_of::<ArrowArrayStream>() - 8usize];
+    ["Offset of field: ArrowArrayStream::get_schema"]
+        [::std::mem::offset_of!(ArrowArrayStream, get_schema) - 0usize];
+    ["Offset of field: ArrowArrayStream::get_next"]
+        [::std::mem::offset_of!(ArrowArrayStream, get_next) - 8usize];
+    ["Offset of field: ArrowArrayStream::get_last_error"]
+        [::std::mem::offset_of!(ArrowArrayStream, get_last_error) - 16usize];
+    ["Offset of field: ArrowArrayStream::release"]
+        [::std::mem::offset_of!(ArrowArrayStream, release) - 24usize];
+    ["Offset of field: ArrowArrayStream::private_data"]
+        [::std::mem::offset_of!(ArrowArrayStream, private_data) - 32usize];
+};
 pub type DatasetHandle = *mut ::std::os::raw::c_void;
 pub type BoosterHandle = *mut ::std::os::raw::c_void;
 pub type FastConfigHandle = *mut ::std::os::raw::c_void;
@@ -328,11 +364,20 @@ unsafe extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-    #[doc = "Create dataset from Arrow.\n # Arguments\n\n* `n_chunks` - The number of Arrow arrays passed to this function\n * `chunks` - Pointer to the list of Arrow arrays\n * `schema` - Pointer to the schema of all Arrow arrays\n * `parameters` - Additional parameters\n * `reference` - Used to align bin mapper with other dataset, nullptr means isn't used\n * `out` (direction out) - Created dataset\n # Returns\n\n0 when succeed, -1 when failure happens"]
+    #[doc = "Create dataset from Arrow.\n > **Deprecated** This function is deprecated in favor of ``LGBM_DatasetCreateFromArrowStream``.\n # Arguments\n\n* `n_chunks` - The number of Arrow arrays passed to this function\n * `chunks` - Pointer to the list of Arrow arrays\n * `schema` - Pointer to the schema of all Arrow arrays\n * `parameters` - Additional parameters\n * `reference` - Used to align bin mapper with other dataset, nullptr means isn't used\n * `out` (direction out) - Created dataset\n # Returns\n\n0 when succeed, -1 when failure happens"]
     pub fn LGBM_DatasetCreateFromArrow(
         n_chunks: i64,
-        chunks: *const ArrowArray,
-        schema: *const ArrowSchema,
+        chunks: *mut ArrowArray,
+        schema: *mut ArrowSchema,
+        parameters: *const ::std::os::raw::c_char,
+        reference: DatasetHandle,
+        out: *mut DatasetHandle,
+    ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+    #[doc = "Create dataset from Arrow stream.\n # Arguments\n\n* `stream` - Arrow stream pointer\n * `parameters` - Additional parameters\n * `reference` - Used to align bin mapper with other dataset, nullptr means isn't used\n * `out` (direction out) - Created dataset\n # Returns\n\n0 when succeed, -1 when failure happens"]
+    pub fn LGBM_DatasetCreateFromArrowStream(
+        stream: *mut ArrowArrayStream,
         parameters: *const ::std::os::raw::c_char,
         reference: DatasetHandle,
         out: *mut DatasetHandle,
@@ -394,7 +439,7 @@ unsafe extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-    #[doc = "Set vector to a content in info.\n > **Note:** - _group_ only works for ``C_API_DTYPE_INT32``;\n - _label_ and _weight_ only work for ``C_API_DTYPE_FLOAT32``;\n - _init_score_ only works for ``C_API_DTYPE_FLOAT64``.\n # Arguments\n\n* `handle` - Handle of dataset\n * `field_name` - Field name, can be _label,_ _weight,_ _init_score,_ _group_\n * `field_data` - Pointer to data vector\n * `num_element` - Number of elements in ``field_data``\n * `type` - Type of ``field_data`` pointer, can be ``C_API_DTYPE_INT32``, ``C_API_DTYPE_FLOAT32`` or ``C_API_DTYPE_FLOAT64``\n # Returns\n\n0 when succeed, -1 when failure happens"]
+    #[doc = "Set vector to a content in info.\n > **Note:** - _group_ and _position_ only work for ``C_API_DTYPE_INT32``;\n - _label_ and _weight_ only work for ``C_API_DTYPE_FLOAT32``;\n - _init_score_ only works for ``C_API_DTYPE_FLOAT64``.\n # Arguments\n\n* `handle` - Handle of dataset\n * `field_name` - Field name, can be _label,_ _weight,_ _init_score,_ _group,_ _position_\n * `field_data` - Pointer to data vector\n * `num_element` - Number of elements in ``field_data``\n * `type` - Type of ``field_data`` pointer, can be ``C_API_DTYPE_INT32``, ``C_API_DTYPE_FLOAT32`` or ``C_API_DTYPE_FLOAT64``\n # Returns\n\n0 when succeed, -1 when failure happens"]
     pub fn LGBM_DatasetSetField(
         handle: DatasetHandle,
         field_name: *const ::std::os::raw::c_char,
@@ -404,13 +449,21 @@ unsafe extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-    #[doc = "Set vector to a content in info.\n > **Note:** - _group_ converts input datatype into ``int32``;\n - _label_ and _weight_ convert input datatype into ``float32``;\n - _init_score_ converts input datatype into ``float64``.\n # Arguments\n\n* `handle` - Handle of dataset\n * `field_name` - Field name, can be _label,_ _weight,_ _init_score,_ _group_\n * `n_chunks` - The number of Arrow arrays passed to this function\n * `chunks` - Pointer to the list of Arrow arrays\n * `schema` - Pointer to the schema of all Arrow arrays\n # Returns\n\n0 when succeed, -1 when failure happens"]
+    #[doc = "Set vector to a content in info.\n > **Deprecated** This function is deprecated in favor of ``LGBM_DatasetSetFieldFromArrowStream``.\n > **Note:** - _group_ and _position_ convert input datatype into ``int32``;\n - _label_ and _weight_ convert input datatype into ``float32``;\n - _init_score_ converts input datatype into ``float64``.\n # Arguments\n\n* `handle` - Handle of dataset\n * `field_name` - Field name, can be _label,_ _weight,_ _init_score,_ _group,_ _position_\n * `n_chunks` - The number of Arrow arrays passed to this function\n * `chunks` - Pointer to the list of Arrow arrays\n * `schema` - Pointer to the schema of all Arrow arrays\n # Returns\n\n0 when succeed, -1 when failure happens"]
     pub fn LGBM_DatasetSetFieldFromArrow(
         handle: DatasetHandle,
         field_name: *const ::std::os::raw::c_char,
         n_chunks: i64,
-        chunks: *const ArrowArray,
-        schema: *const ArrowSchema,
+        chunks: *mut ArrowArray,
+        schema: *mut ArrowSchema,
+    ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+    #[doc = "Set vector to a content in info.\n > **Note:** - _group_ converts input datatype into ``int32``;\n - _label_ and _weight_ convert input datatype into ``float32``;\n - _init_score_ converts input datatype into ``float64``.\n # Arguments\n\n* `handle` - Handle of dataset\n * `field_name` - Field name, can be _label,_ _weight,_ _init_score,_ _group_\n * `stream` - Arrow stream pointer\n # Returns\n\n0 when succeed, -1 when failure happens"]
+    pub fn LGBM_DatasetSetFieldFromArrowStream(
+        handle: DatasetHandle,
+        field_name: *const ::std::os::raw::c_char,
+        stream: *mut ArrowArrayStream,
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
@@ -547,10 +600,10 @@ unsafe extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-    #[doc = "Update the model for one iteration.\n # Arguments\n\n* `handle` - Handle of booster\n * `is_finished` (direction out) - 1 means the update was successfully finished (cannot split any more), 0 indicates failure\n # Returns\n\n0 when succeed, -1 when failure happens"]
+    #[doc = "Update the model for one iteration.\n # Arguments\n\n* `handle` - Handle of booster\n * `produced_empty_tree` (direction out) - 1 means the tree(s) produced by this iteration did not have any splits.\n This usually means that training is \"finished\" (calling this function again will not change the model's predictions).\n However, that is not always the case.\n For example, if you have added any randomness (like column sampling by setting ``feature_fraction_bynode < 1.0``),\n it is possible that another call to this function would produce a non-empty tree.\n # Returns\n\n0 when succeed, -1 when failure happens"]
     pub fn LGBM_BoosterUpdateOneIter(
         handle: BoosterHandle,
-        is_finished: *mut ::std::os::raw::c_int,
+        produced_empty_tree: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
@@ -563,12 +616,12 @@ unsafe extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-    #[doc = "Update the model by specifying gradient and Hessian directly\n (this can be used to support customized loss functions).\n > **Note:** The length of the arrays referenced by ``grad`` and ``hess`` must be equal to\n ``num_class * num_train_data``, this is not verified by the library, the caller must ensure this.\n # Arguments\n\n* `handle` - Handle of booster\n * `grad` - The first order derivative (gradient) statistics\n * `hess` - The second order derivative (Hessian) statistics\n * `is_finished` (direction out) - 1 means the update was successfully finished (cannot split any more), 0 indicates failure\n # Returns\n\n0 when succeed, -1 when failure happens"]
+    #[doc = "Update the model by specifying gradient and Hessian directly\n (this can be used to support customized loss functions).\n > **Note:** The length of the arrays referenced by ``grad`` and ``hess`` must be equal to\n ``num_class * num_train_data``, this is not verified by the library, the caller must ensure this.\n # Arguments\n\n* `handle` - Handle of booster\n * `grad` - The first order derivative (gradient) statistics\n * `hess` - The second order derivative (Hessian) statistics\n * `produced_empty_tree` (direction out) - 1 means the tree(s) produced by this iteration did not have any splits.\n This usually means that training is \"finished\" (calling this function again will not change the model's predictions).\n However, that is not always the case.\n For example, if you have added any randomness (like column sampling by setting ``feature_fraction_bynode < 1.0``),\n it is possible that another call to this function would produce a non-empty tree.\n # Returns\n\n0 when succeed, -1 when failure happens"]
     pub fn LGBM_BoosterUpdateOneIterCustom(
         handle: BoosterHandle,
         grad: *const f32,
         hess: *const f32,
-        is_finished: *mut ::std::os::raw::c_int,
+        produced_empty_tree: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
@@ -886,12 +939,25 @@ unsafe extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-    #[doc = "Make prediction for a new dataset.\n > **Note:** You should pre-allocate memory for ``out_result``:\n - for normal and raw score, its length is equal to ``num_class * num_data``;\n - for leaf index, its length is equal to ``num_class * num_data * num_iteration``;\n - for feature contributions, its length is equal to ``num_class * num_data * (num_feature + 1)``.\n # Arguments\n\n* `handle` - Handle of booster\n * `n_chunks` - The number of Arrow arrays passed to this function\n * `chunks` - Pointer to the list of Arrow arrays\n * `schema` - Pointer to the schema of all Arrow arrays\n * `predict_type` - What should be predicted\n - ``C_API_PREDICT_NORMAL``: normal prediction, with transform (if needed);\n - ``C_API_PREDICT_RAW_SCORE``: raw score;\n - ``C_API_PREDICT_LEAF_INDEX``: leaf index;\n - ``C_API_PREDICT_CONTRIB``: feature contributions (SHAP values)\n * `start_iteration` - Start index of the iteration to predict\n * `num_iteration` - Number of iteration for prediction, <= 0 means no limit\n * `parameter` - Other parameters for prediction, e.g. early stopping for prediction\n * `out_len` (direction out) - Length of output result\n * `out_result` (direction out) - Pointer to array with predictions\n # Returns\n\n0 when succeed, -1 when failure happens"]
+    #[doc = "Make prediction for a new dataset.\n > **Deprecated** This function is deprecated in favor of ``LGBM_BoosterPredictForArrowStream``.\n > **Note:** You should pre-allocate memory for ``out_result``:\n - for normal and raw score, its length is equal to ``num_class * num_data``;\n - for leaf index, its length is equal to ``num_class * num_data * num_iteration``;\n - for feature contributions, its length is equal to ``num_class * num_data * (num_feature + 1)``.\n # Arguments\n\n* `handle` - Handle of booster\n * `n_chunks` - The number of Arrow arrays passed to this function\n * `chunks` - Pointer to the list of Arrow arrays\n * `schema` - Pointer to the schema of all Arrow arrays\n * `predict_type` - What should be predicted\n - ``C_API_PREDICT_NORMAL``: normal prediction, with transform (if needed);\n - ``C_API_PREDICT_RAW_SCORE``: raw score;\n - ``C_API_PREDICT_LEAF_INDEX``: leaf index;\n - ``C_API_PREDICT_CONTRIB``: feature contributions (SHAP values)\n * `start_iteration` - Start index of the iteration to predict\n * `num_iteration` - Number of iteration for prediction, <= 0 means no limit\n * `parameter` - Other parameters for prediction, e.g. early stopping for prediction\n * `out_len` (direction out) - Length of output result\n * `out_result` (direction out) - Pointer to array with predictions\n # Returns\n\n0 when succeed, -1 when failure happens"]
     pub fn LGBM_BoosterPredictForArrow(
         handle: BoosterHandle,
         n_chunks: i64,
-        chunks: *const ArrowArray,
-        schema: *const ArrowSchema,
+        chunks: *mut ArrowArray,
+        schema: *mut ArrowSchema,
+        predict_type: ::std::os::raw::c_int,
+        start_iteration: ::std::os::raw::c_int,
+        num_iteration: ::std::os::raw::c_int,
+        parameter: *const ::std::os::raw::c_char,
+        out_len: *mut i64,
+        out_result: *mut f64,
+    ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+    #[doc = "Make prediction for a new dataset.\n > **Note:** You should pre-allocate memory for ``out_result``:\n - for normal and raw score, its length is equal to ``num_class * num_data``;\n - for leaf index, its length is equal to ``num_class * num_data * num_iteration``;\n - for feature contributions, its length is equal to ``num_class * num_data * (num_feature + 1)``.\n # Arguments\n\n* `handle` - Handle of booster\n * `stream` - Arrow stream pointer\n * `predict_type` - What should be predicted\n - ``C_API_PREDICT_NORMAL``: normal prediction, with transform (if needed);\n - ``C_API_PREDICT_RAW_SCORE``: raw score;\n - ``C_API_PREDICT_LEAF_INDEX``: leaf index;\n - ``C_API_PREDICT_CONTRIB``: feature contributions (SHAP values)\n * `start_iteration` - Start index of the iteration to predict\n * `num_iteration` - Number of iteration for prediction, <= 0 means no limit\n * `parameter` - Other parameters for prediction, e.g. early stopping for prediction\n * `out_len` (direction out) - Length of output result\n * `out_result` (direction out) - Pointer to array with predictions\n # Returns\n\n0 when succeed, -1 when failure happens"]
+    pub fn LGBM_BoosterPredictForArrowStream(
+        handle: BoosterHandle,
+        stream: *mut ArrowArrayStream,
         predict_type: ::std::os::raw::c_int,
         start_iteration: ::std::os::raw::c_int,
         num_iteration: ::std::os::raw::c_int,
