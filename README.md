@@ -117,6 +117,8 @@ On Windows, if `lib_lightgbm.dll` exists in the directory specified by `LIGHTGBM
 
 On Linux, if `lib_lightgbm.a` exists in the directory specified by `LIGHTGBM_LIB_DIR`, it is statically linked. Otherwise, it is dynamically linked.
 
+When statically linking LightGBM 4.7.0 or later, `lgbm-sys` also links the bundled nanoarrow static library. If `nanoarrow_static.lib` or `libnanoarrow_static.a` is outside `LIGHTGBM_LIB_DIR` and the standard LightGBM CMake build directory, set `NANOARROW_LIB_DIR` to the directory containing it.
+
 ## License
 
 This project is licensed under MIT. See the LICENSE files for details.

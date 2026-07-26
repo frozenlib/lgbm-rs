@@ -1,4 +1,7 @@
-use std::{env, path::Path};
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 
 fn main() {
     if std::env::var("DOCS_RS").is_ok() {
@@ -27,6 +30,7 @@ fn build_windows() {
         println!("cargo:rustc-link-lib=dylib=lib_lightgbm");
     } else {
         println!("cargo:rustc-link-lib=static=lib_lightgbm");
+        link_nanoarrow(dir_path);
     }
 }
 fn build_linux() {
@@ -38,6 +42,7 @@ fn build_linux() {
     rerun_if_changed(dir_path);
     if a_path.is_file() {
         println!("cargo:rustc-link-lib=static=_lightgbm");
+        link_nanoarrow(dir_path);
         println!("cargo:rustc-link-lib=stdc++");
         println!("cargo:rustc-link-lib=dylib=gomp");
     } else if so_path.is_file() {
@@ -51,6 +56,39 @@ fn build_macos() {
         println!("cargo:rustc-link-search={dir}");
     }
     println!("cargo:rustc-link-lib=dylib=_lightgbm");
+}
+
+fn link_nanoarrow(lightgbm_lib_dir: &Path) {
+    let lib_file_name = if cfg!(windows) {
+        "nanoarrow_static.lib"
+    } else {
+        "libnanoarrow_static.a"
+    };
+    let mut candidates = Vec::new();
+    if let Some(dir) = try_env_var("NANOARROW_LIB_DIR") {
+        candidates.push(PathBuf::from(dir));
+    }
+    candidates.push(lightgbm_lib_dir.to_path_buf());
+    candidates.push(
+        lightgbm_lib_dir
+            .join("build")
+            .join("external_libs")
+            .join("nanoarrow"),
+    );
+    if let Some(parent) = lightgbm_lib_dir.parent() {
+        candidates.push(parent.join("build").join("external_libs").join("nanoarrow"));
+    }
+    let nanoarrow_lib_dir = candidates
+        .iter()
+        .flat_map(|dir| [dir.clone(), dir.join("Release")])
+        .find(|dir| dir.join(lib_file_name).is_file())
+        .unwrap_or_else(|| {
+            panic!(
+                "{lib_file_name} not found; set NANOARROW_LIB_DIR to the directory containing it"
+            )
+        });
+    println!("cargo:rustc-link-search={}", nanoarrow_lib_dir.display());
+    println!("cargo:rustc-link-lib=static=nanoarrow_static");
 }
 
 fn env_var(key: &str) -> String {
